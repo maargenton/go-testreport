@@ -11,7 +11,7 @@ import (
 // their tests from a stream containing the native YAML representation.
 func LoadFromYAML(r io.Reader) (pkgs []Package, err error) {
 	d := yaml.NewDecoder(r)
-	if err := d.Decode(pkgs); err != nil {
+	if err := d.Decode(&pkgs); err != nil {
 		return nil, err
 	}
 	for _, pkg := range pkgs {

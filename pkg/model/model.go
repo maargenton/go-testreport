@@ -8,10 +8,10 @@ import (
 // Package collects all the test record for one go package within the project
 type Package struct {
 	Name     string        `yaml:"package"`
-	Tests    []*Test       `yaml:"tests,omitempty"`
 	Elapsed  time.Duration `yaml:"elapsed"`
 	Coverage float64       `yaml:"coverage"`
 	Skipped  bool          `yaml:"skipped"`
+	Tests    []*Test       `yaml:"tests,omitempty"`
 }
 
 // LinkSubTests sets up the between a test and its parent
@@ -33,10 +33,10 @@ func (p *Package) LeafTests() (r []*Test) {
 // Test collects nested test records and outputs
 type Test struct {
 	Name    string   `yaml:"name"`
-	Tests   []*Test  `yaml:"tests,omitempty"`
 	Failure bool     `yaml:"failure,omitempty"`
 	Output  []string `yaml:"output,omitempty"`
 	Parent  *Test    `yaml:"-"`
+	Tests   []*Test  `yaml:"tests,omitempty"`
 }
 
 // LinkSubTests sets up the between a test and its parent
