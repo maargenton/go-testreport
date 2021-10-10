@@ -1,11 +1,8 @@
 package json_test
 
 import (
-	"bytes"
 	"io"
-	"strings"
 	"testing"
-	"text/template"
 
 	"github.com/maargenton/go-fileutils"
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
@@ -14,7 +11,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/maargenton/go-testreport/pkg/json"
-	"github.com/maargenton/go-testreport/pkg/test"
+	"github.com/maargenton/go-testreport/pkg/model"
+	"github.com/maargenton/go-testreport/pkg/template"
 )
 
 func TestLoad(t *testing.T) {
@@ -22,7 +20,7 @@ func TestLoad(t *testing.T) {
 		filename := "./testdata/test-output.json"
 
 		t.When("doing something", func(t *bdd.T) {
-			var pkgs []test.Package
+			var pkgs []model.Package
 			err := fileutils.ReadFile(filename, func(r io.Reader) (err error) {
 				pkgs, err = json.Load(r)
 				return err
@@ -34,12 +32,7 @@ func TestLoad(t *testing.T) {
 			})
 
 			tmpl := template.New("report")
-			tmpl.Funcs(map[string]interface{}{
-				"indent":    indent,
-				"render":    renderFunc(tmpl),
-				"codeblock": codeblock,
-			})
-			tmpl.Parse(tmplSrc)
+			tmpl.Parse(template.MarkdownTemplate)
 
 			require.That(t, err).IsError(nil)
 			require.That(t, tmpl).IsNotNil()
@@ -56,81 +49,3 @@ func TestLoad(t *testing.T) {
 		})
 	})
 }
-
-func indent(spaces int, v string) string {
-	pad := strings.Repeat(" ", spaces)
-	return pad + strings.Replace(v, "\n", "\n"+pad, -1)
-}
-
-func renderFunc(tmpl *template.Template) func(name string, data interface{}) (string, error) {
-	return func(name string, data interface{}) (string, error) {
-		buf := bytes.NewBuffer(nil)
-		if err := tmpl.ExecuteTemplate(buf, name, data); err != nil {
-			return "", err
-		}
-		return buf.String(), nil
-	}
-}
-
-func codeblock() string {
-	return "```"
-}
-
-var tmplSrc = `
-# Test report
-
-{{  range . -}}
-## {{ .Name }}
-{{    range .Tests }}
-- {{ .Name -}}
-{{      range .LeafTests }}
-  - {{ .PartialName 1 -}}
-{{      end }}
-{{    end }}
-{{- end }}
-
----
-
-{{ range . -}}
-{{- template "package" . -}}
-{{- end }}
-
-
-{{- define "package" -}}
-{{-   if gt (len .Tests) 0 -}}
-## {{ .Name }}
-
-Coverage: {{ .Coverage }}%
-
-{{      range .Tests -}}
-{{-       render "test" . -}}
-{{-     end }}
-{{    end -}}
-{{- end -}}
-
-
-{{- define "test" }}
-- {{ render "outcome" . }} {{ .Name }}
-{{-   render "output" . | indent 2 -}}
-{{-   range .SubTests -}}
-{{-     render "test" . | indent 2 -}}
-{{-   end -}}
-{{- end -}}
-
-
-{{- define "outcome" }}
-{{-   if .Failure -}}❌{{- else -}}✅{{- end -}}
-{{- end -}}
-
-
-{{- define "output" }}
-{{-   if gt (len .Output) 0 }}
-{{      codeblock -}}
-{{      range .Output }}
-{{        .  }}
-{{-     end }}
-{{      codeblock }}
-{{-   end -}}
-{{- end -}}
-
-`

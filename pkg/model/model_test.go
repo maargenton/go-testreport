@@ -1,4 +1,4 @@
-package test_test
+package model_test
 
 import (
 	"testing"
@@ -7,19 +7,19 @@ import (
 	"github.com/maargenton/go-testpredicate/pkg/subexpr"
 	"github.com/maargenton/go-testpredicate/pkg/verify"
 
-	"github.com/maargenton/go-testreport/pkg/test"
+	"github.com/maargenton/go-testreport/pkg/model"
 )
 
-func samplePkg() test.Package {
-	var pkg = test.Package{
+func samplePkg() model.Package {
+	var pkg = model.Package{
 		Name: "pkg1",
-		Tests: []*test.Test{
+		Tests: []*model.Test{
 			{
 				Name: "foo",
-				Tests: []*test.Test{
+				Tests: []*model.Test{
 					{
 						Name: "bar",
-						Tests: []*test.Test{
+						Tests: []*model.Test{
 							{
 								Name: "baz",
 							},
@@ -27,7 +27,7 @@ func samplePkg() test.Package {
 					},
 					{
 						Name: "bar2",
-						Tests: []*test.Test{
+						Tests: []*model.Test{
 							{
 								Name: "baz",
 							},

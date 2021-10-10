@@ -11,10 +11,10 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/maargenton/go-testreport/pkg/test"
+	"github.com/maargenton/go-testreport/pkg/model"
 )
 
-func Load(r io.Reader) ([]test.Package, error) {
+func Load(r io.Reader) ([]model.Package, error) {
 	pkgMap, err := parseTestOutput(r)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func Load(r io.Reader) ([]test.Package, error) {
 	}
 	sort.Strings(packageNames)
 
-	var packages = make([]test.Package, 0, len(pkgMap))
+	var packages = make([]model.Package, 0, len(pkgMap))
 	for _, name := range packageNames {
 		records := rebuildTestHierarchy(pkgMap[name])
 		tests := records.toTests()
@@ -56,7 +56,7 @@ func Load(r io.Reader) ([]test.Package, error) {
 			t.LinkSubTests()
 		}
 
-		packages = append(packages, test.Package{
+		packages = append(packages, model.Package{
 			Name:     name,
 			Tests:    tests,
 			Elapsed:  elapsed,
@@ -159,7 +159,7 @@ func (r *testRecord) recordTest(name []string, details jsonInputLine) {
 	}
 }
 
-func (r *testRecord) toTests() (tests []*test.Test) {
+func (r *testRecord) toTests() (tests []*model.Test) {
 	for _, t := range r.l {
 		if t.name == "" {
 			continue
@@ -179,11 +179,11 @@ func (r *testRecord) toTests() (tests []*test.Test) {
 			}
 		}
 
-		tests = append(tests, &test.Test{
-			Name:     cleanupTestName(t.name),
-			SubTests: t.toTests(),
-			Failure:  !success,
-			Output:   cleanupOutputs(output),
+		tests = append(tests, &model.Test{
+			Name:    cleanupTestName(t.name),
+			Tests:   t.toTests(),
+			Failure: !success,
+			Output:  cleanupOutputs(output),
 		})
 	}
 	return
