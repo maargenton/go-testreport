@@ -12,6 +12,8 @@ package template
 
 // ---
 
+// MarkdownTemplate contains the definition for the built-in template used to
+// generate Markdown report
 var MarkdownTemplate = `
 # Test report
 {{ range . -}}

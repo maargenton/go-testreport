@@ -6,8 +6,11 @@ import (
 	"text/template"
 )
 
+// Template is a alias of the same type from `test/template` package
 type Template = template.Template
 
+// New allocates a new template with the give name, and attaches an additional
+// set of built-in function to help with partial rendering and indentation.
 func New(name string) *Template {
 	tmpl := template.New(name)
 	tmpl.Funcs(map[string]interface{}{
