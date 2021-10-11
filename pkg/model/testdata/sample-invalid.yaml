@@ -1,0 +1,5 @@
+- package: github.com/maargenton/go-cli/pkg/option
+  elapsed: 258ms
+  coverage: 42
+  skipped: false
+foo: bar

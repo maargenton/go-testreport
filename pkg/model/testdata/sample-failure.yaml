@@ -1,0 +1,31 @@
+- package: github.com/maargenton/go-cli/pkg/option
+  tests:
+    - name: TestGetCompletion
+      tests:
+        - name: Given an configured OptionSet
+          tests:
+            - name: when calling GetCompletion() with flag and value
+              tests:
+                - name: then remaining options are listed
+                  failure: true
+                  output:
+                    - 'completion_test.go:71:'
+                    - '    expected:       set(value.Option) == []string{ "--format <value>", "-v" }'
+                    - '    value:          []option.Description{'
+                    - "                    \toption.Description{"
+                    - "                    \t\tOption:      \"--forfmat <value>\","
+                    - "                    \t\tDescription: \"communcation format, e.g. 8N1\","
+                    - "                    \t},"
+                    - "                    \toption.Description{"
+                    - "                    \t\tOption:      \"-v\","
+                    - "                    \t\tDescription: \"display additional information on startup\","
+                    - "                    \t},"
+                    - '                    }'
+                    - '    $.Option:       { "--forfmat <value>", "-v" }'
+                    - '    extra values:   "--forfmat <value>"'
+                    - '    missing values: "--format <value>"'
+                - name: then the first argument is being completed
+              failure: true
+  elapsed: 258ms
+  coverage: 42
+  skipped: false

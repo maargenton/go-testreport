@@ -1,4 +1,4 @@
-package json
+package model
 
 import (
 	"bufio"
@@ -11,10 +11,35 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/maargenton/go-testreport/pkg/test"
+	"github.com/maargenton/go-fileutils"
 )
 
-func Load(r io.Reader) ([]test.Package, error) {
+// LoadFromGoTestJson loads output of `go test` using JSON format into the
+// internal representation of test results. The process involves identifying
+// packages and tests, grouping and linking nested tests, cleaning up test names
+// and test output, and capturing coverage, elapsed time, and success / failure.
+func LoadFromGoTestJson(r io.Reader) (pkgs []Package, err error) {
+	pkgs, err = load(r)
+	if err != nil {
+		return nil, err
+	}
+	for _, pkg := range pkgs {
+		pkg.LinkTests()
+	}
+	return
+}
+
+// LoadFromGoTestJsonFile is similar to LoadFromGoTestJson, but loading from a
+// file instead of an `io.Reader`.
+func LoadFromGoTestJsonFile(filename string) (pkgs []Package, err error) {
+	err = fileutils.ReadFile(filename, func(r io.Reader) error {
+		pkgs, err = LoadFromGoTestJson(r)
+		return err
+	})
+	return
+}
+
+func load(r io.Reader) ([]Package, error) {
 	pkgMap, err := parseTestOutput(r)
 	if err != nil {
 		return nil, err
@@ -26,7 +51,7 @@ func Load(r io.Reader) ([]test.Package, error) {
 	}
 	sort.Strings(packageNames)
 
-	var packages = make([]test.Package, 0, len(pkgMap))
+	var packages = make([]Package, 0, len(pkgMap))
 	for _, name := range packageNames {
 		records := rebuildTestHierarchy(pkgMap[name])
 		tests := records.toTests()
@@ -52,11 +77,7 @@ func Load(r io.Reader) ([]test.Package, error) {
 			}
 		}
 
-		for _, t := range tests {
-			t.LinkSubTests()
-		}
-
-		packages = append(packages, test.Package{
+		packages = append(packages, Package{
 			Name:     name,
 			Tests:    tests,
 			Elapsed:  elapsed,
@@ -66,7 +87,6 @@ func Load(r io.Reader) ([]test.Package, error) {
 
 	}
 	return packages, nil
-
 }
 
 func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
@@ -159,7 +179,7 @@ func (r *testRecord) recordTest(name []string, details jsonInputLine) {
 	}
 }
 
-func (r *testRecord) toTests() (tests []*test.Test) {
+func (r *testRecord) toTests() (tests []*Test) {
 	for _, t := range r.l {
 		if t.name == "" {
 			continue
@@ -179,11 +199,11 @@ func (r *testRecord) toTests() (tests []*test.Test) {
 			}
 		}
 
-		tests = append(tests, &test.Test{
-			Name:     cleanupTestName(t.name),
-			SubTests: t.toTests(),
-			Failure:  !success,
-			Output:   cleanupOutputs(output),
+		tests = append(tests, &Test{
+			Name:    cleanupTestName(t.name),
+			Tests:   t.toTests(),
+			Failure: !success,
+			Output:  cleanupOutputs(output),
 		})
 	}
 	return
