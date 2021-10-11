@@ -95,9 +95,8 @@ func (cmd *reportCmd) saveOutput(output string, pkgs []model.Package) error {
 	if parts[0] == "yaml" {
 		if parts[1] == "-" {
 			return model.SaveToYAML(os.Stdout, pkgs)
-		} else {
-			return model.SaveToYAMLFile(parts[1], pkgs)
 		}
+		return model.SaveToYAMLFile(parts[1], pkgs)
 	}
 
 	var tmpl *template.Template
@@ -118,9 +117,8 @@ func (cmd *reportCmd) saveOutput(output string, pkgs []model.Package) error {
 
 	if parts[1] == "-" {
 		return tmpl.Execute(os.Stdout, pkgs)
-	} else {
-		return fileutils.WriteFile(parts[1], func(w io.Writer) error {
-			return tmpl.Execute(w, pkgs)
-		})
 	}
+	return fileutils.WriteFile(parts[1], func(w io.Writer) error {
+		return tmpl.Execute(w, pkgs)
+	})
 }
