@@ -11,6 +11,8 @@ go install github.com/margenton/go-testreport
 go-testreport --race ./... \
     -oyaml=build/build-report.yaml \
     -omarkdown=build/build-report.yaml
+
+go run github.com/maargenton/go-testreport@latest --race ./... -omd=test-report.md
 ```
 
 The `yaml` output is a straight representation of the internal model, with a
@@ -148,11 +150,11 @@ produce the default markdown output.
 
 
 {{- define "package" -}}
-{{-   if gt (len .Tests) 0 -}}
+{{-   if gt (len .Tests) 0 }}
+
 ## {{ .Name }}
 
 Coverage: {{ .Coverage }}%
-
 {{      range .Tests -}}
 {{-       render "test" . -}}
 {{-     end }}
@@ -163,7 +165,7 @@ Coverage: {{ .Coverage }}%
 {{- define "test" }}
 - {{ render "outcome" . }} {{ .Name }}
 {{-   render "output" . | indent 2 -}}
-{{-   range .SubTests -}}
+{{-   range .Tests -}}
 {{-     render "test" . | indent 2 -}}
 {{-   end -}}
 {{- end -}}

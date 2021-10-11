@@ -18,11 +18,13 @@
             "mode": "auto",
             "program": "${workspaceFolder}/",
             "args": [
-                "./pkg/model/testdata/test-output.json",
+                "./...",
+                // "./pkg/model/testdata/test-output.json",
                 "--race",
-                "-oyaml=test-report.yaml",
-                "-omarkdown=test-report.md",
-                "-ocustom-report.tmpl=test-report-custom.md",
+                "-omd=-",
+                // "-oyaml=test-report.yaml",
+                // "-omarkdown=test-report.md",
+                // "-ocustom-report.tmpl=test-report-custom.md",
             ]
         }
     ]
