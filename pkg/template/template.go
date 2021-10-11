@@ -9,7 +9,7 @@ import (
 type Template = template.Template
 
 func New(name string) *Template {
-	tmpl := template.New("report")
+	tmpl := template.New(name)
 	tmpl.Funcs(map[string]interface{}{
 		"indent":    indent,
 		"render":    renderFunc(tmpl),
