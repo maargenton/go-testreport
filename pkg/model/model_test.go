@@ -1,6 +1,7 @@
 package model_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
@@ -11,34 +12,18 @@ import (
 )
 
 func samplePkg() model.Package {
-	var pkg = model.Package{
-		Name: "pkg1",
-		Tests: []*model.Test{
-			{
-				Name: "foo",
-				Tests: []*model.Test{
-					{
-						Name: "bar",
-						Tests: []*model.Test{
-							{
-								Name: "baz",
-							},
-						},
-					},
-					{
-						Name: "bar2",
-						Tests: []*model.Test{
-							{
-								Name: "baz",
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	pkg.LinkTests()
-	return pkg
+	var yaml = `
+- package: pkg1
+  tests:
+  - name: foo
+    tests:
+    - { name: bar, tests: [ { name: baz } ] }
+    - { name: bar2, tests: [ { name: baz } ] }
+`
+	var r = strings.NewReader(yaml)
+	var pkgs, err = model.LoadFromYAML(r)
+	_ = err
+	return pkgs[0]
 }
 
 func TestPackage(t *testing.T) {
