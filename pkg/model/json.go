@@ -24,7 +24,7 @@ func LoadFromGoTestJson(r io.Reader) (pkgs []Package, err error) {
 		return nil, err
 	}
 	for _, pkg := range pkgs {
-		pkg.LinkTests()
+		pkg.linkTests()
 	}
 	return
 }

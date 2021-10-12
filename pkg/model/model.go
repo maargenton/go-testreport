@@ -14,10 +14,9 @@ type Package struct {
 	Tests    []*Test       `yaml:"tests,omitempty"`
 }
 
-// LinkSubTests sets up the between a test and its parent
-func (p *Package) LinkTests() {
+func (p *Package) linkTests() {
 	for _, t := range p.Tests {
-		t.LinkSubTests()
+		t.linkTests()
 	}
 }
 
@@ -39,11 +38,10 @@ type Test struct {
 	Tests   []*Test  `yaml:"tests,omitempty"`
 }
 
-// LinkSubTests sets up the between a test and its parent
-func (t *Test) LinkSubTests() {
+func (t *Test) linkTests() {
 	for _, tt := range t.Tests {
 		tt.Parent = t
-		tt.LinkSubTests()
+		tt.linkTests()
 	}
 }
 
