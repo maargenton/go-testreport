@@ -16,10 +16,10 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/",
+            "cwd": "${workspaceFolder}",
+            "program": "main.go",
             "args": [
                 "./...",
-                // "./pkg/model/testdata/test-output.json",
                 "--race",
                 "-omd=-",
                 // "-oyaml=test-report.yaml",

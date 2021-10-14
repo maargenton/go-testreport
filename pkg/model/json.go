@@ -60,7 +60,7 @@ func load(r io.Reader) ([]Package, error) {
 		var elapsed = 0 * time.Second
 		var coverage = 0.0
 
-		pkgRecords := records.m[""]
+		pkgRecords := records.nestedMap[""]
 		if pkgRecords != nil {
 			for _, l := range pkgRecords.details {
 				if l.Action == "skip" {
@@ -108,15 +108,71 @@ func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
 }
 
 func rebuildTestHierarchy(lines []jsonInputLine) *testRecord {
+	var nameSet = make(map[string]struct{})
+	for _, l := range lines {
+		name := l.Test
+		if name != "" {
+			nameSet[name] = struct{}{}
+		}
+	}
+	var names []string
+	for name := range nameSet {
+		if name != "" {
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	var splitNames = generateTestNameSplits(names)
+
 	var records = newTestRecord()
 	for _, l := range lines {
 		if isDiscardable(l) {
 			continue
 		}
-		nameParts := splitTestName(l.Test)
+		nameParts := splitNames[l.Test]
 		records.recordTest(nameParts, l)
 	}
 	return records
+}
+
+// generateTestNameSplits takes a complete sorted list of test and sub-test
+// names and produces a map between a test name and a split version of that
+// name where the prefix is another test.
+func generateTestNameSplits(names []string) map[string][]string {
+	var splits = make(map[string][]string)
+	splits[""] = []string{""}
+	for _, name := range names {
+		splits[name] = []string{name}
+	}
+
+	// Look for longest prefix in names list, spliting on '/' only
+	for _, name := range names {
+		var i = len(name)
+		for {
+			i = strings.LastIndexByte(name[:i], '/')
+			if i < 0 {
+				break
+			}
+			if _, ok := splits[name[:i]]; ok {
+				splits[name] = []string{name[:i], name[i+1:]}
+				break
+			}
+		}
+	}
+
+	// Replace prefix with split prefix if any. NOTE: A single through sorted
+	// list is enough, as prefixes will appear first, even if not directly
+	// adjacent.
+	for _, name := range names {
+		var split = splits[name]
+		if len(split) > 1 && len(splits[split[0]]) > 1 {
+			var expanded = append([]string{}, splits[split[0]]...)
+			expanded = append(expanded, split[1:]...)
+			splits[name] = expanded
+		}
+	}
+
+	return splits
 }
 
 // ---------------------------------------------------------------------------
@@ -137,41 +193,38 @@ func isDiscardable(l jsonInputLine) bool {
 		(strings.HasPrefix(o, "===") || strings.HasPrefix(o, "---"))
 }
 
-func splitTestName(name string) []string {
-	parts := strings.Split(name, "/")
-	for i, p := range parts {
-		j := strings.LastIndexByte(p, '#')
-		if j >= 0 {
-			n := p[j+1:]
-			if _, err := strconv.ParseInt(n, 10, 64); err == nil {
-				parts[i] = p[:j]
-			}
+func stripIndexSuffix(name string) string {
+	j := strings.LastIndexByte(name, '#')
+	if j >= 0 {
+		n := name[j+1:]
+		if _, err := strconv.ParseInt(n, 10, 64); err == nil {
+			return name[:j]
 		}
 	}
-	return parts
+	return name
 }
 
 type testRecord struct {
-	name    string
-	l       []*testRecord
-	m       map[string]*testRecord
-	details []jsonInputLine
+	name       string
+	nestedList []*testRecord
+	nestedMap  map[string]*testRecord
+	details    []jsonInputLine
 }
 
 func newTestRecord() *testRecord {
-	return &testRecord{m: make(map[string]*testRecord)}
+	return &testRecord{nestedMap: make(map[string]*testRecord)}
 }
 
 func (r *testRecord) recordTest(name []string, details jsonInputLine) {
 	if len(name) > 0 {
-		n := name[0]
-		if rr, ok := r.m[n]; ok {
+		n := stripIndexSuffix(name[0])
+		if rr, ok := r.nestedMap[n]; ok {
 			rr.recordTest(name[1:], details)
 		} else {
 			rr := newTestRecord()
 			rr.name = n
-			r.m[n] = rr
-			r.l = append(r.l, rr)
+			r.nestedMap[n] = rr
+			r.nestedList = append(r.nestedList, rr)
 			rr.recordTest(name[1:], details)
 		}
 	} else {
@@ -180,7 +233,7 @@ func (r *testRecord) recordTest(name []string, details jsonInputLine) {
 }
 
 func (r *testRecord) toTests() (tests []*Test) {
-	for _, t := range r.l {
+	for _, t := range r.nestedList {
 		if t.name == "" {
 			continue
 		}
