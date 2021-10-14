@@ -6,7 +6,7 @@
   hierarchy, that supports '/' in test names.
 - Implement better testing of JSON test result parsing, covering explicitly
   extraction of failures, coverage and elapsed time.
-- Proceed with output generation when `go test` find test failures and produces
+- Proceed with output generation when `go test` finds test failures and produces
   a non-zero exit code.
 
 # v0.1.1
