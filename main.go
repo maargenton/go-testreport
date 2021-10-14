@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -74,7 +76,6 @@ func (cmd *reportCmd) loadInput(input string) (pkgs []model.Package, err error) 
 			"-json",
 		},
 	}
-	_ = testCmd
 	if cmd.Race {
 		testCmd.Arguments = append(testCmd.Arguments, "-race")
 	}
@@ -84,6 +85,16 @@ func (cmd *reportCmd) loadInput(input string) (pkgs []model.Package, err error) 
 		return err
 	}
 	_, _, err = testCmd.Run(context.Background())
+
+	// Catch exec.ExitError and ignore the error. `go test` can exit with status
+	// 1 on test failure and still produce complete meaningful output.
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
+		if exitError.ProcessState.ExitCode() == 1 {
+			err = nil
+		}
+	}
+
 	return
 }
 

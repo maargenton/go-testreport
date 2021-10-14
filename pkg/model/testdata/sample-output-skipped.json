@@ -1,0 +1,2 @@
+{"Time":"2021-10-13T23:23:37.123801-07:00","Action":"output","Package":"github.com/maargenton/go-testreport","Output":"?   \tgithub.com/maargenton/go-testreport\t[no test files]\n"}
+{"Time":"2021-10-13T23:23:37.124103-07:00","Action":"skip","Package":"github.com/maargenton/go-testreport","Elapsed":0}
