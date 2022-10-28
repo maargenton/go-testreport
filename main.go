@@ -118,6 +118,12 @@ func (cmd *reportCmd) saveOutput(output string, pkgs []model.Package) error {
 		if err != nil {
 			return err
 		}
+	} else if parts[0] == "markdown-summary" {
+		tmpl = template.New("report")
+		_, err := tmpl.Parse(template.MarkdownSummaryTemplate)
+		if err != nil {
+			return err
+		}
 	} else {
 		tmpl = template.New(parts[0])
 		_, err := tmpl.ParseFiles(parts[0])
