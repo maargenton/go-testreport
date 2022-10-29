@@ -5,6 +5,31 @@ import (
 	"time"
 )
 
+// Results collects all the test record from all tested packages
+type Results struct {
+	Success  bool       `yaml:"success"`
+	Passed   int        `yaml:"passed"`
+	Failed   int        `yaml:"failed"`
+	Packages []*Package `yaml:"packages"`
+}
+
+// UpdateCounts updates the internal references of collected results and the
+// total counts of passed and failed leaf tests. It should be called for
+// consistency once the model has been fully constructed or changed.
+func (r *Results) UpdateCounts() {
+	var passed = 0
+	var failed = 0
+
+	for _, pkg := range r.Packages {
+		pkg.updateCounts()
+		passed += pkg.Passed
+		failed += pkg.Failed
+	}
+	r.Passed = passed
+	r.Failed = failed
+	r.Success = failed == 0
+}
+
 // Package collects all the test record for one go package within the project
 type Package struct {
 	Name     string        `yaml:"package"`
@@ -16,7 +41,7 @@ type Package struct {
 	Tests    []*Test       `yaml:"tests,omitempty"`
 }
 
-func (p *Package) linkTests() {
+func (p *Package) updateCounts() {
 	for _, t := range p.Tests {
 		t.linkTests()
 	}

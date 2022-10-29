@@ -11,8 +11,9 @@ import (
 	"github.com/maargenton/go-testreport/pkg/model"
 )
 
-func samplePkg() model.Package {
+func samplePkg() *model.Package {
 	var yaml = `
+packages:
 - package: pkg1
   tests:
   - name: foo
@@ -21,9 +22,9 @@ func samplePkg() model.Package {
     - { name: bar2, tests: [ { name: baz } ] }
 `
 	var r = strings.NewReader(yaml)
-	var pkgs, err = model.LoadFromYAML(r)
+	var results, err = model.LoadFromYAML(r)
 	_ = err
-	return pkgs[0]
+	return results.Packages[0]
 }
 
 func TestPackage(t *testing.T) {

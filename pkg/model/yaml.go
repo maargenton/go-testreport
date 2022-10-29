@@ -7,40 +7,41 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// LoadFromYAML loads the internal representation of a list for packages and
-// their tests from a stream containing the native YAML representation.
-func LoadFromYAML(r io.Reader) (pkgs []Package, err error) {
-	d := yaml.NewDecoder(r)
-	if err := d.Decode(&pkgs); err != nil {
+// LoadFromYAML loads the internal representation of a result object with its
+// list of packages and their tests from a stream containing the native YAML
+// representation.
+func LoadFromYAML(r io.Reader) (results *Results, err error) {
+	var d = yaml.NewDecoder(r)
+	results = &Results{}
+	if err := d.Decode(results); err != nil {
 		return nil, err
 	}
-	for i := range pkgs {
-		pkgs[i].linkTests()
-	}
+	results.UpdateCounts()
 	return
 }
 
-// LoadFromYAMLFile loads the internal representation of a list for packages and
-// their tests from a file containing the native YAML representation.
-func LoadFromYAMLFile(filename string) (pkgs []Package, err error) {
+// LoadFromYAMLFile loads the internal representation of a result object with
+// its list of packages and their tests from a file containing the native YAML
+// representation.
+func LoadFromYAMLFile(filename string) (results *Results, err error) {
 	err = fileutils.ReadFile(filename, func(r io.Reader) error {
-		pkgs, err = LoadFromYAML(r)
+		results, err = LoadFromYAML(r)
 		return err
 	})
 	return
 }
 
-// SaveToYAML save the internal representation of a list for packages and their
-// tests to a stream in the native YAML format.
-func SaveToYAML(w io.Writer, pkgs []Package) error {
+// SaveToYAML save the internal representation of a result object with its list
+// of packages and their tests to a stream in the native YAML format.
+func SaveToYAML(w io.Writer, results *Results) error {
 	e := yaml.NewEncoder(w)
-	return e.Encode(pkgs)
+	return e.Encode(results)
 }
 
-// SaveToYAMLFile save the internal representation of a list for packages and
-// their tests to a file in the native YAML format.
-func SaveToYAMLFile(filename string, pkgs []Package) error {
+// SaveToYAMLFile save the internal representation of a result object with its
+// list of packages and their tests to a file in the native YAML format.
+func SaveToYAMLFile(filename string, results *Results) error {
 	return fileutils.WriteFile(filename, func(w io.Writer) error {
-		return SaveToYAML(w, pkgs)
+		return SaveToYAML(w, results)
 	})
 }
