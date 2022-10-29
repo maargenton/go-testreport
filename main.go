@@ -25,9 +25,12 @@ func main() {
 }
 
 type reportCmd struct {
-	Inputs  []string `opts:"args, name:input" desc:"package or packages to run tests from, or filename containign test results"`
+	Inputs  []string `opts:"args, name:input" desc:"package or packages to run tests from, or filename containing test results"`
 	Race    bool     `opts:"--race"             desc:"run the tests with race detector on"`
-	Outputs []string `opts:"-o, --output"       desc:"one of more output to generate, formated as <template>=<output-filename>.\ntemplate can be either 'yaml', 'markdown' or a the name of a file containing a custom template"`
+	Outputs []string `opts:"-o, --output"       desc:"one of more output to generate, formatted as <template>=<output-filename>.\ntemplate can be either 'yaml', 'markdown' or a the name of a file containing a custom template"`
+
+	ShiftHeader int    `opts:"--md-shift-headers, default:0" desc:"shift the level of markdown headers"`
+	Title       string `opts:"--md-title, default:Test report" desc:"shift the level of markdown headers"`
 }
 
 func (cmd *reportCmd) Run() error {
@@ -113,21 +116,26 @@ func (cmd *reportCmd) saveOutput(output string, pkgs []model.Package) error {
 	}
 
 	var tmpl *template.Template
+	var values = map[string]interface{}{
+		"Title":       cmd.Title,
+		"Packages":    pkgs,
+		"HeaderShift": cmd.ShiftHeader,
+	}
 
 	if parts[0] == "md" || parts[0] == "markdown" {
-		tmpl = template.New("report")
+		tmpl = template.New("report", values)
 		_, err := tmpl.Parse(template.MarkdownTemplate)
 		if err != nil {
 			return err
 		}
 	} else if parts[0] == "markdown-summary" {
-		tmpl = template.New("report")
+		tmpl = template.New("report", values)
 		_, err := tmpl.Parse(template.MarkdownSummaryTemplate)
 		if err != nil {
 			return err
 		}
 	} else {
-		tmpl = template.New(parts[0])
+		tmpl = template.New(parts[0], values)
 		_, err := tmpl.ParseFiles(parts[0])
 		if err != nil {
 			return err

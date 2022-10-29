@@ -11,14 +11,26 @@ type Template = template.Template
 
 // New allocates a new template with the give name, and attaches an additional
 // set of built-in function to help with partial rendering and indentation.
-func New(name string) *Template {
-	tmpl := template.New(name)
-	tmpl.Funcs(map[string]interface{}{
+func New(name string, values map[string]interface{}) *Template {
+	var tmpl = template.New(name)
+
+	var headerShift = 0
+	if v, ok := values["HeaderShift"]; ok {
+		if vv, ok := v.(int); ok {
+			headerShift = vv
+		}
+
+	}
+	var funcs = map[string]interface{}{
 		"indent":    indent,
-		"header":    header(0),
+		"header":    header(headerShift),
 		"render":    renderFunc(tmpl),
 		"codeblock": codeblock,
-	})
+	}
+	for k, v := range values {
+		funcs[k] = wrapValue(v)
+	}
+	tmpl.Funcs(funcs)
 
 	return tmpl
 }
@@ -46,4 +58,10 @@ func renderFunc(tmpl *template.Template) func(name string, data interface{}) (st
 
 func codeblock() string {
 	return "```"
+}
+
+func wrapValue(v interface{}) func() interface{} {
+	return func() interface{} {
+		return v
+	}
 }

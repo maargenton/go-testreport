@@ -3,7 +3,9 @@ package template
 // MarkdownTemplate contains the definition for the built-in template used to
 // generate Markdown report
 var MarkdownTemplate = `
-{{ header 1 }} Test report
+{{- if ne Title "" -}}
+{{ header 1 }} {{ Title }}
+{{- end }}
 {{- range . -}}
 {{- template "package" . -}}
 {{- end }}
@@ -56,7 +58,9 @@ var MarkdownSummaryTemplate = `
 {{-   if gt .Failed 0 -}}{{- $any_failure = true -}}{{- end -}}
 {{- end -}}
 
-{{ header 1 }} Test report
+{{- if ne Title "" -}}
+{{ header 1 }} {{ Title }}
+{{- end }}
 
 {{ header 2 }} Summary
 

@@ -14,7 +14,11 @@
             "args": [
                 "./...",
                 "--race",
+                "--md-shift-headers=1",
+                "--md-title=",
+                // "--md-title=Unit tests results",
                 "-oyaml=test-report.yaml",
+                // "-omarkdown=-",
                 "-omarkdown-summary=-",
             ]
         }
