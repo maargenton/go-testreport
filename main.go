@@ -41,11 +41,20 @@ func (cmd *reportCmd) Run() error {
 	}
 
 	var pkgs []model.Package
+	var testError *exec.ExitError
+
 	for _, input := range cmd.Inputs {
 		content, err := cmd.loadInput(input)
-		if err != nil {
+
+		// Record exit status of `go test` as testError
+		if errors.As(err, &testError) {
+			if testError.ProcessState.ExitCode() != 1 {
+				return err
+			}
+		} else if err != nil {
 			return err
 		}
+
 		pkgs = append(pkgs, content...)
 	}
 
@@ -55,7 +64,9 @@ func (cmd *reportCmd) Run() error {
 			return err
 		}
 	}
-
+	if testError != nil {
+		return testError
+	}
 	return nil
 }
 
@@ -85,15 +96,6 @@ func (cmd *reportCmd) loadInput(input string) (pkgs []model.Package, err error) 
 		return err
 	}
 	_, _, err = testCmd.Run(context.Background())
-
-	// Catch exec.ExitError and ignore the error. `go test` can exit with status
-	// 1 on test failure and still produce complete meaningful output.
-	var exitError *exec.ExitError
-	if errors.As(err, &exitError) {
-		if exitError.ProcessState.ExitCode() == 1 {
-			err = nil
-		}
-	}
 
 	return
 }

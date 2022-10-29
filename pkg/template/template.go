@@ -15,6 +15,7 @@ func New(name string) *Template {
 	tmpl := template.New(name)
 	tmpl.Funcs(map[string]interface{}{
 		"indent":    indent,
+		"header":    header(0),
 		"render":    renderFunc(tmpl),
 		"codeblock": codeblock,
 	})
@@ -25,6 +26,12 @@ func New(name string) *Template {
 func indent(spaces int, v string) string {
 	pad := strings.Repeat(" ", spaces)
 	return pad + strings.Replace(v, "\n", "\n"+pad, -1)
+}
+
+func header(offset int) func(level int) string {
+	return func(level int) string {
+		return strings.Repeat("#", level+offset)
+	}
 }
 
 func renderFunc(tmpl *template.Template) func(name string, data interface{}) (string, error) {
