@@ -2,7 +2,10 @@ package gotest
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
+	"os/exec"
 
 	"github.com/maargenton/go-fileutils/pkg/popen"
 
@@ -38,5 +41,20 @@ func Run(input string, opts ...RunOpts) (results *model.Results, err error) {
 		return err
 	}
 	_, _, err = testCmd.Run(context.Background())
+
+	// Catch exec.ExitError and ignore the error. `go test` can exit with status
+	// 1 on test failure and still produce complete meaningful output.
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
+		if exitError.ProcessState.ExitCode() == 1 {
+			err = nil
+		}
+	}
+
+	// But generate an error if the output of `go test` did not report any
+	// package.
+	if len(results.Packages) == 0 {
+		return nil, fmt.Errorf("unresolved package reference '%v'", input)
+	}
 	return
 }

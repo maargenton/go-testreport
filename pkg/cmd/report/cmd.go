@@ -1,20 +1,24 @@
 package report
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/maargenton/go-errors"
 	"github.com/maargenton/go-fileutils"
 
 	"github.com/maargenton/go-testreport/pkg/gotest"
 	"github.com/maargenton/go-testreport/pkg/model"
 	"github.com/maargenton/go-testreport/pkg/template"
 )
+
+// ErrTestFailure is returned by the command when the command executes
+// successfully and generates the requested reports, but some of the inputs
+// contain test failures.
+const ErrTestFailure = errors.Sentinel("ErrTestFailure")
 
 type Cmd struct {
 	Inputs  []string `opts:"args, name:input" desc:"package or packages to run tests from, or filename containing test results"`
@@ -35,20 +39,11 @@ func (cmd *Cmd) Run() error {
 	}
 
 	var results = &model.Results{}
-	var testError *exec.ExitError
-
 	for _, input := range cmd.Inputs {
 		content, err := cmd.loadInput(input)
-
-		// Record exit status of `go test` as testError
-		if errors.As(err, &testError) {
-			if testError.ProcessState.ExitCode() != 1 {
-				return err
-			}
-		} else if err != nil {
+		if err != nil {
 			return err
 		}
-
 		results.Packages = append(results.Packages, content.Packages...)
 	}
 	results.UpdateCounts()
@@ -59,8 +54,13 @@ func (cmd *Cmd) Run() error {
 			return err
 		}
 	}
-	if testError != nil {
-		return testError
+
+	if !results.Success {
+		if results.Failed > 1 {
+			return ErrTestFailure.Errorf("%v tests failed", results.Failed)
+		} else {
+			return ErrTestFailure.Errorf("%v test failed", results.Failed)
+		}
 	}
 	return nil
 }
@@ -101,15 +101,9 @@ func (cmd *Cmd) saveOutput(output string, results *model.Results) error {
 		"HeaderShift": cmd.ShiftHeader,
 	}
 
-	if parts[0] == "md" || parts[0] == "markdown" {
+	if builtin, ok := template.Builtin[parts[0]]; ok {
 		tmpl = template.New("report", values)
-		_, err := tmpl.Parse(template.MarkdownTemplate)
-		if err != nil {
-			return err
-		}
-	} else if parts[0] == "markdown-summary" {
-		tmpl = template.New("report", values)
-		_, err := tmpl.Parse(template.MarkdownSummaryTemplate)
+		_, err := tmpl.Parse(builtin)
 		if err != nil {
 			return err
 		}

@@ -30,4 +30,18 @@ func TestRun(t *testing.T) {
 			})
 		})
 	})
+
+	bdd.Given(t, "an invalid package reference", func(t *bdd.T) {
+		var pkgName = "../bad_sample"
+
+		t.When("calling Run()", func(t *bdd.T) {
+			results, err := gotest.Run(pkgName, gotest.Race())
+
+			t.Then("it runs go test and captures the results", func(t *bdd.T) {
+				verify.That(t, results).IsNil()
+				verify.That(t, err).IsNotNil()
+				verify.That(t, err).ToString().Contains("unresolved package reference")
+			})
+		})
+	})
 }

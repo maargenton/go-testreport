@@ -1,5 +1,11 @@
 package template
 
+var Builtin = map[string]string{
+	"md":               MarkdownTemplate,
+	"markdown":         MarkdownTemplate,
+	"markdown-summary": MarkdownSummaryTemplate,
+}
+
 // MarkdownTemplate contains the definition for the built-in template used to
 // generate Markdown report
 var MarkdownTemplate = `

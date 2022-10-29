@@ -32,15 +32,15 @@ func TestCmdArgumentsValidation(t *testing.T) {
 			})
 		})
 
-		t.When("called with no output", func(t *bdd.T) {
+		t.When("called with input and output", func(t *bdd.T) {
 			var dir = t.TempDir()
 			var output = filepath.Join(dir, "summary.md")
 			cmd.Inputs = []string{"testdata/sample-failure.yaml"}
 			cmd.Outputs = []string{fmt.Sprintf("markdown-summary=%v", output)}
 			var err = cmd.Run()
 
-			t.Then("it returns an error", func(t *bdd.T) {
-				require.That(t, err).IsError(nil)
+			t.Then("it reports test failure", func(t *bdd.T) {
+				require.That(t, err).IsError(report.ErrTestFailure)
 			})
 		})
 	})
@@ -61,12 +61,12 @@ func TestCmdInputType(t *testing.T) {
 			})
 		})
 
-		t.When("called with yaml input", func(t *bdd.T) {
+		t.When("called with valid yaml input", func(t *bdd.T) {
 			cmd.Inputs = []string{"testdata/sample-failure.yaml"}
 			var err = cmd.Run()
 
-			t.Then("it succeeds", func(t *bdd.T) {
-				require.That(t, err).IsError(nil)
+			t.Then("it succeeds but reports test failures", func(t *bdd.T) {
+				require.That(t, err).IsError(report.ErrTestFailure)
 			})
 		})
 
@@ -74,8 +74,8 @@ func TestCmdInputType(t *testing.T) {
 			cmd.Inputs = []string{"testdata/sample-output.json"}
 			var err = cmd.Run()
 
-			t.Then("it succeeds", func(t *bdd.T) {
-				require.That(t, err).IsError(nil)
+			t.Then("it succeeds but reports test failures", func(t *bdd.T) {
+				require.That(t, err).IsError(report.ErrTestFailure)
 			})
 		})
 
@@ -84,17 +84,9 @@ func TestCmdInputType(t *testing.T) {
 			cmd.Race = true
 			var err = cmd.Run()
 
-			t.Then("it succeeds", func(t *bdd.T) {
+			t.Then("it succeeds with no error", func(t *bdd.T) {
 				require.That(t, err).IsError(nil)
 			})
 		})
-
-		// t.When("called with no output", func(t *bdd.T) {
-		// 	cmd.Inputs = []string{"testdata/sample-failure.yaml"}
-		// 	var err = cmd.Run()
-
-		// 	t.Then("it returns no error", func(t *bdd.T) {
-		// 	})
-		// })
 	})
 }
