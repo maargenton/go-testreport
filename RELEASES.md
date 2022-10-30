@@ -1,3 +1,8 @@
+# v0.1.4
+
+- Maintenance release, cleanup CI build reporting
+
+
 # v0.1.3
 
 - Enhance package model with `Passed` and `Failed` as a count passed and failed
