@@ -12,7 +12,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	bdd.Given(t, "a file containing json formated test output", func(t *bdd.T) {
+	bdd.Given(t, "a file containing json formatted test output", func(t *bdd.T) {
 		filename := "./testdata/sample-output.json"
 
 		t.When("calling ParseFile()", func(t *bdd.T) {
