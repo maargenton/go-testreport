@@ -68,7 +68,7 @@ var MarkdownSummaryTemplate = `
 {{ header 1 }} {{ Title }}
 {{- end }}
 
-{{ header 2 }} Summary
+{{ header 2 }} Packages
 
 | Package | Passed | Failed | Coverage |
 |-|-|-|-|
