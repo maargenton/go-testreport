@@ -8,6 +8,7 @@ import (
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
 	"github.com/maargenton/go-testpredicate/pkg/require"
 	"github.com/maargenton/go-testpredicate/pkg/verify"
+
 	"github.com/maargenton/go-testreport/pkg/model"
 )
 
@@ -16,16 +17,18 @@ func TestLoadFromYAMLFile(t *testing.T) {
 		filename := "./testdata/sample-failure.yaml"
 
 		t.When("calling LoadFromYAMLFile()", func(t *bdd.T) {
-			pkgs, err := model.LoadFromYAMLFile(filename)
+			results, err := model.LoadFromYAMLFile(filename)
 			require.That(t, err).IsError(nil)
-			require.That(t, pkgs).Length().Eq(1)
+			require.That(t, results).IsNotNil()
+			require.That(t, results.Packages).Length().Eq(1)
+			pkg := results.Packages[0]
 
 			t.Then("package details are loaded correctly", func(t *bdd.T) {
-				verify.That(t, pkgs[0].Coverage).Eq(42)
-				verify.That(t, pkgs[0].Elapsed).Eq(258 * time.Millisecond)
+				verify.That(t, pkg.Coverage).Eq(42)
+				verify.That(t, pkg.Elapsed).Eq(258 * time.Millisecond)
 			})
-			t.Then("nested tests are linked through Parent field", func(t *bdd.T) {
-				tests := pkgs[0].LeafTests()
+			t.Then("nested t are linked through Parent field", func(t *bdd.T) {
+				tests := pkg.LeafTests()
 				require.That(t, tests).Length().Eq(2)
 				verify.That(t, tests[0].Parent).IsNotNil()
 				verify.That(t, tests[1].Parent).IsNotNil()
@@ -48,23 +51,27 @@ func TestLoadFromYAMLFile(t *testing.T) {
 
 func TestSaveToYAMLFile(t *testing.T) {
 	bdd.Given(t, "a valid list of packages", func(t *bdd.T) {
-		var pkgs = []model.Package{
-			{Name: "foo", Coverage: 42},
-			{Name: "bar", Coverage: 43},
+
+		var results = &model.Results{
+			Packages: []*model.Package{
+				{Name: "foo", Coverage: 42},
+				{Name: "bar", Coverage: 43},
+			},
 		}
 		var tempDir = t.TempDir()
 		var filename = filepath.Join(tempDir, "tests.yaml")
 
 		t.When("when calling SaveToYAMLFile()", func(t *bdd.T) {
-			err := model.SaveToYAMLFile(filename, pkgs)
+			err := model.SaveToYAMLFile(filename, results)
 			require.That(t, err).IsError(nil)
 
 			t.Then("content can be reloaded with LoadFromYAMLFile()", func(t *bdd.T) {
 				loaded, err := model.LoadFromYAMLFile(filename)
 				require.That(t, err).IsError(nil)
-				verify.That(t, loaded).Length().Eq(2)
-				verify.That(t, loaded).Field("Name").Eq([]string{"foo", "bar"})
-				verify.That(t, loaded).Field("Coverage").Eq([]float64{42, 43})
+				require.That(t, loaded).IsNotNil()
+				verify.That(t, loaded.Packages).Length().Eq(2)
+				verify.That(t, loaded.Packages).Field("Name").Eq([]string{"foo", "bar"})
+				verify.That(t, loaded.Packages).Field("Coverage").Eq([]float64{42, 43})
 			})
 		})
 	})

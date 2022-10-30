@@ -1,4 +1,4 @@
-package model
+package gotest
 
 import (
 	"bufio"
@@ -12,34 +12,32 @@ import (
 	"unicode"
 
 	"github.com/maargenton/go-fileutils"
+
+	"github.com/maargenton/go-testreport/pkg/model"
 )
 
-// LoadFromGoTestJson loads output of `go test` using JSON format into the
-// internal representation of test results. The process involves identifying
+// Parse loads the output of `go test -json` from a stream and parses it into
+// the internal representation of test results. The process involves identifying
 // packages and tests, grouping and linking nested tests, cleaning up test names
 // and test output, and capturing coverage, elapsed time, and success / failure.
-func LoadFromGoTestJson(r io.Reader) (pkgs []Package, err error) {
-	pkgs, err = load(r)
+func Parse(r io.Reader) (results *model.Results, err error) {
+	results, err = load(r)
 	if err != nil {
 		return nil, err
-	}
-	for _, pkg := range pkgs {
-		pkg.linkTests()
 	}
 	return
 }
 
-// LoadFromGoTestJsonFile is similar to LoadFromGoTestJson, but loading from a
-// file instead of an `io.Reader`.
-func LoadFromGoTestJsonFile(filename string) (pkgs []Package, err error) {
+// ParseFile is similar to parse, but uses a file instead of a stream as input.
+func ParseFile(filename string) (results *model.Results, err error) {
 	err = fileutils.ReadFile(filename, func(r io.Reader) error {
-		pkgs, err = LoadFromGoTestJson(r)
+		results, err = Parse(r)
 		return err
 	})
 	return
 }
 
-func load(r io.Reader) ([]Package, error) {
+func load(r io.Reader) (results *model.Results, err error) {
 	pkgMap, err := parseTestOutput(r)
 	if err != nil {
 		return nil, err
@@ -51,7 +49,7 @@ func load(r io.Reader) ([]Package, error) {
 	}
 	sort.Strings(packageNames)
 
-	var packages = make([]Package, 0, len(pkgMap))
+	var packages = make([]*model.Package, 0, len(pkgMap))
 	for _, name := range packageNames {
 		records := rebuildTestHierarchy(pkgMap[name])
 		tests := records.toTests()
@@ -77,16 +75,20 @@ func load(r io.Reader) ([]Package, error) {
 			}
 		}
 
-		packages = append(packages, Package{
+		packages = append(packages, &model.Package{
 			Name:     name,
 			Tests:    tests,
 			Elapsed:  elapsed,
 			Coverage: coverage,
 			Skipped:  skipped,
 		})
-
 	}
-	return packages, nil
+
+	results = &model.Results{
+		Packages: packages,
+	}
+	results.UpdateCounts()
+	return results, nil
 }
 
 func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
@@ -232,7 +234,7 @@ func (r *testRecord) recordTest(name []string, details jsonInputLine) {
 	}
 }
 
-func (r *testRecord) toTests() (tests []*Test) {
+func (r *testRecord) toTests() (tests []*model.Test) {
 	for _, t := range r.nestedList {
 		if t.name == "" {
 			continue
@@ -252,7 +254,7 @@ func (r *testRecord) toTests() (tests []*Test) {
 			}
 		}
 
-		tests = append(tests, &Test{
+		tests = append(tests, &model.Test{
 			Name:    cleanupTestName(t.name),
 			Tests:   t.toTests(),
 			Failure: !success,

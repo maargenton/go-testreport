@@ -1,3 +1,13 @@
+# v0.1.3
+
+- Enhance package model with `Passed` and `Failed` as a count passed and failed
+  leaf tests to help with summary and failure only outputs
+- Enhance default markdown template with:
+  - a summary table
+  - a failures section reporting only failures
+  - a detailed section containing the full report, but collapsed by default
+- Fix linking
+
 # v0.1.2
 
 ## Resolved issues

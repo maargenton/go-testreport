@@ -5,19 +5,58 @@ import (
 	"time"
 )
 
+// Results collects all the test record from all tested packages
+type Results struct {
+	Success  bool       `yaml:"success"`
+	Passed   int        `yaml:"passed"`
+	Failed   int        `yaml:"failed"`
+	Packages []*Package `yaml:"packages"`
+}
+
+// UpdateCounts updates the internal references of collected results and the
+// total counts of passed and failed leaf tests. It should be called for
+// consistency once the model has been fully constructed or changed.
+func (r *Results) UpdateCounts() {
+	var passed = 0
+	var failed = 0
+
+	for _, pkg := range r.Packages {
+		pkg.updateCounts()
+		passed += pkg.Passed
+		failed += pkg.Failed
+	}
+	r.Passed = passed
+	r.Failed = failed
+	r.Success = failed == 0
+}
+
 // Package collects all the test record for one go package within the project
 type Package struct {
 	Name     string        `yaml:"package"`
 	Elapsed  time.Duration `yaml:"elapsed"`
+	Passed   int           `yaml:"passed"`
+	Failed   int           `yaml:"failed"`
 	Coverage float64       `yaml:"coverage"`
 	Skipped  bool          `yaml:"skipped"`
 	Tests    []*Test       `yaml:"tests,omitempty"`
 }
 
-func (p *Package) linkTests() {
+func (p *Package) updateCounts() {
 	for _, t := range p.Tests {
 		t.linkTests()
 	}
+
+	var passed = 0
+	var failed = 0
+	for _, t := range p.LeafTests() {
+		if t.Failure {
+			failed++
+		} else {
+			passed++
+		}
+	}
+	p.Passed = passed
+	p.Failed = failed
 }
 
 // LeafTests returns the set of tests from the package that don't have any
