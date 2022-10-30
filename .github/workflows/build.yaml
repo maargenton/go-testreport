@@ -15,7 +15,7 @@ jobs:
           - "1.19.x"
         os:
           - ubuntu-latest
-          - macos-latest
+          - macos-12
           - windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,19 +27,10 @@ jobs:
           go-version: ${{ matrix.go }}
       - run: go version
       - run: rake info
-
+      - run: git status
 
       - name: Test and build package
         run: rake build
-
-
-      # - name: Run tests with coverage
-      #   if: matrix.os != 'windows-latest'
-      #   run: go test -race -coverprofile=build/coverage.txt -covermode=atomic ./...
-
-      # - name: Run tests without coverage (windows)
-      #   if: matrix.os == 'windows-latest'
-      #   run: go test -race ./...
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
