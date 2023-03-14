@@ -1,3 +1,14 @@
+# v0.1.6
+
+- Maintenance release, cleanup CI and build reporting
+- Cleanup rakefile to be more usable as baseline
+- Add package summary to default markdown report
+
+## Code changes
+
+- Cleanup CI and templates ([#7](https://github.com/maargenton/go-testreport/pull/7))
+
+
 # v0.1.5
 
 - Add more builtin markdown templates

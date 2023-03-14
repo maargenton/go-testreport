@@ -26,8 +26,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - run: go version
-      - run: rake info
-      - run: git status
+      # - run: rake info
+      # - run: git status
 
       - name: Test and build package
         run: rake build

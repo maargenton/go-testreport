@@ -17,8 +17,8 @@ jobs:
         with:
           go-version: 1.17
       - run: go version
-      - run: rake info
-      - run: git status
+      # - run: rake info
+      # - run: git status
 
       - name: Test and build package
         run: rake build
