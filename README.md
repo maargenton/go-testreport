@@ -37,13 +37,18 @@ The input can be:
 The output format can be specified as:
 - `yaml`: produces a YAML file containing a straight representation of the
   internal model.
-- `markdown`: produces a markdown report from a built-in template. The output
-  list all the packages with coverage, and all the tests, passed or failed.
-  Failure details are also included in the report.
-- `markdown-summary`: produces an alternate markdown report, tailored toward
-  build summary, focussing on package-level summary and individual failures. The
-  full report is also included in a collapsed section that can be expanded if
-  needed.
+- `md` or `markdown`: produces a markdown report from a built-in template. The
+  output list all the packages with coverage, and all the tests, passed or
+  failed. Failure details are also included in the report.
+- `mdsfd` or `markdown-summary`: produces an alternate markdown report, tailored
+  toward build summary, that includes 3 sections:
+    - A _Packages_ section containing package level summary.
+    - A _Failures_ section reporting only tests failures, and included only if
+      any test has failed.
+    - A _Full report_ section, collapsed in html preview, and expanding to
+      display the full list of tests, including all passing tests.
+- `mds` or `mdsf`: variants of the `mdsfd` template containing either just
+  summary or summary and failures, no details.
 - a custom template filename (see [Using Custom
 Template](#using-custom-template))
 
