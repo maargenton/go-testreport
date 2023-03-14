@@ -42,7 +42,11 @@ func indent(spaces int, v string) string {
 
 func header(offset int) func(level int) string {
 	return func(level int) string {
-		return strings.Repeat("#", level+offset)
+		var n = level + offset
+		if n < 1 {
+			n = 1
+		}
+		return strings.Repeat("#", n)
 	}
 }
 

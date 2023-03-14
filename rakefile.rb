@@ -42,8 +42,8 @@ task :build do
     go_testreport('build/go-test-result.json',
         '--md-shift-headers=1',
         '-oyaml=build/artifacts/test-report.yaml',
-        '-omarkdown-summary=build/artifacts/test-report.md',
-        '-omarkdown=-',
+        '-omdsfd=build/artifacts/test-report.md',
+        '-omdsf=-',
     )
 
     generate_release_notes()
@@ -60,7 +60,8 @@ def go_test()
 end
 
 def go_testreport(*args)
-    cmd = %w{go run github.com/maargenton/go-testreport@v0.1.3}
+    # cmd = %w{go run github.com/maargenton/go-testreport@v0.1.5}
+    cmd = %w{go run main.go} # use local
     cmd += args
     system(*cmd)
 end

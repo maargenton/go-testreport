@@ -101,11 +101,13 @@ func (cmd *Cmd) saveOutput(output string, results *model.Results) error {
 		"HeaderShift": cmd.ShiftHeader,
 	}
 
-	if builtin, ok := template.Builtin[parts[0]]; ok {
+	if srcs, ok := template.Builtin[parts[0]]; ok {
 		tmpl = template.New("report", values)
-		_, err := tmpl.Parse(builtin)
-		if err != nil {
-			return err
+		for _, src := range srcs {
+			_, err := tmpl.Parse(src)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		tmpl = template.New(parts[0], values)
