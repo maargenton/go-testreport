@@ -1,12 +1,3 @@
-# v0.1.5
-
-- Add more builtin markdown templates
-
-## Code changes
-
-- Add more builtin markdown templates ([#6](https://github.com/maargenton/go-testreport/pull/6))
-
-
 # v0.1.4
 
 - Maintenance release, cleanup CI build reporting
