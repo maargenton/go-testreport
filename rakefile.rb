@@ -78,7 +78,7 @@ def generate_summary()
     summary = {
         "Module" =>  GoBuild.default.gomod,
         "Version" => GoBuild.default.version,
-        "Source" =>  File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit),
+        "Source" =>  File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit[0,10]),
     }
 
     if GoBuild.default.targets.count > 0 then
@@ -241,10 +241,12 @@ private
     end
 
     def _targets()
-        Hash[Dir["./cmd/**/main.go"].map do |f|
+        targets = Hash[Dir["./cmd/**/main.go"].map do |f|
             path = File.dirname(f)
             [File.basename(path), File.join( path, "..." )]
         end]
+        targets[File.basename(gomod)] = "." if File.exist?("./main.go")
+        targets
     end
 
     def _ldflags()
@@ -325,17 +327,11 @@ def export_build_summary(summary, *files)
 end
 
 def format_summary_table(summary)
-    o = ""
-    o += "| | |\n"
-    o += "|-|-|\n"
+    o = "| | |\n|-|-|\n"
     summary.each do |key, value|
         if value.respond_to?('each')
             value.each_with_index do |v, i|
-                if i == 0
-                    o += "| #{key} | `#{v}`\n"
-                else
-                    o += "| | `#{v}`\n"
-                end
+                o += (i == 0) ? "| #{key} | `#{v}`\n" : "| | `#{v}`\n"
             end
         else
             o += "| #{key} | `#{value}`\n"
