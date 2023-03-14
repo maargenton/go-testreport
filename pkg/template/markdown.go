@@ -85,10 +85,20 @@ Coverage: {{ .Coverage }}%
 var MarkdownTemplate = `
 {{- if ne Title "" -}}
 {{ header 1 }} {{ Title }}
-{{- end }}
+
+{{ end -}}
+{{ header 2 }} Packages
+
+| Package | Passed | Failed | Coverage |
+|-|-|-|-|
 {{- range . -}}
+{{-   template "package-summary" . -}}
+{{- end}}
+
+{{ header 2 }} Full report
+{{ range . -}}
 {{- template "package" . -}}
-{{- end }}
+{{- end -}}
 `
 
 // MarkdownSFDTemplate contains the definition for the built-in template

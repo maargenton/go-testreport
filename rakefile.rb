@@ -15,17 +15,28 @@ desc 'Display build information'
 task :info do
     puts "Module:  #{GoBuild.default.gomod}"
     puts "Version: #{GoBuild.default.version}"
-    puts "Source:  #{File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit)}"
+    puts "Source:  #{File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit[0,10])}"
     # puts "Image:   #{File.basename(GoBuild.default.gomod)}"
 
+    summary = {
+        "Module" =>  GoBuild.default.gomod,
+        "Version" => GoBuild.default.version,
+        "Source" =>  File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit[0,10]),
+    }
+
     if GoBuild.default.targets.count > 0 then
-        puts "Main target: #{file.join('build/bin', GoBuild.default.main_target)}"
+        puts "Main target: #{File.join('build/bin', GoBuild.default.main_target)}"
+        summary["Main Target"] = GoBuild.default.main_target
+
         if GoBuild.default.targets.count > 1 then
+            targets = (GoBuild.default.targets.keys - [GoBuild.default.main_target])
             puts "Additional targels:"
-            puts (GoBuild.default.targets.keys - [GoBuild.default.main_target]).map { |t|
-                "  - #{file.join('build/bin',t)}" }.join(" \n")
+            puts targets.map { |t| "  - #{File.join('build/bin',t)}" }.join(" \n")
+            summary["Additional Targets"] = targets
         end
     end
+
+    record_summary("## Build summary\n\n#{format_summary_table(summary)}\n")
 end
 
 
@@ -35,24 +46,38 @@ task :version do
 end
 
 
-desc 'Build and publish both release archive and associated container image'
-task :build do
+desc 'Run all tests and capture results'
+task :test => [:info] do
     FileUtils.makedirs( ['./build/artifacts'] )
     success = go_test()
     go_testreport('build/go-test-result.json',
         '--md-shift-headers=1',
         '-oyaml=build/artifacts/test-report.yaml',
-        '-omdsfd=build/artifacts/test-report.md',
-        '-omdsf=-',
+        '-omd=build/artifacts/test-report.md',
+        '-omdsf=build/go-test-summary.md',
+        '-omdsfd=build/go-test-details.md',
     )
 
-    generate_release_notes()
-    generate_summary()
+    puts File.read('build/go-test-summary.md')
+    record_summary(File.read('build/go-test-details.md'))
 
     exit(1) if !success
 end
 
+desc 'Build and publish both release archive and associated container image'
+task :build => [:info, :test] do
+    # Nothing to do here
+    generate_release_notes()
+end
+
+desc 'Remove build artifacts'
+task :clean do
+    FileUtils.rm_rf('./build')
+end
+
+
 def go_test()
+    FileUtils.makedirs( ['./build'] )
     cmd = "go test -race " +
         "-coverprofile=build/go-test-coverage.txt -covermode=atomic " +
         "-json ./... > build/go-test-result.json"
@@ -72,31 +97,6 @@ def generate_release_notes()
         # prefix: "go-testreport",
         input:'RELEASES.md',
     ))
-end
-
-def generate_summary()
-    summary = {
-        "Module" =>  GoBuild.default.gomod,
-        "Version" => GoBuild.default.version,
-        "Source" =>  File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit[0,10]),
-    }
-
-    if GoBuild.default.targets.count > 0 then
-        summary["Main Target"] = GoBuild.default.main_target
-        if GoBuild.default.targets.count > 1 then
-            targets = (GoBuild.default.targets.keys - [GoBuild.default.main_target])
-            summary["Additional Targets"] = targets
-        end
-    end
-
-    export_build_summary(summary, 'build/artifacts/test-report.md')
-end
-
-
-
-desc 'Remove build artifacts'
-task :clean do
-    FileUtils.rm_rf('./build')
 end
 
 
@@ -308,21 +308,11 @@ end
 # Build summary generator
 # ----------------------------------------------------------------------------
 
-def export_build_summary(summary, *files)
+def record_summary(content)
     return if ENV['GITHUB_STEP_SUMMARY'].nil?
     summary_filename = ENV['GITHUB_STEP_SUMMARY']
     open(summary_filename, 'a') do |f|
-        f.puts "## Build summary"
-        f.puts
-        f.puts format_summary_table(summary)
-        f.puts
-
-        files.each do |file|
-            File.readlines(file).each do |l|
-                f.puts l
-            end
-            f.puts
-        end
+        f.puts content
     end
 end
 
