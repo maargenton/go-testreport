@@ -92,7 +92,7 @@ Coverage: 100%
 ## Canonical YAML format
 
 The test reporting process goes through an intermediate in-memory representation
-that maps on disk to a canonical YAML format. Independently of the formatted
+that maps to a canonical YAML format on disk. Independently of the formatted
 output, the command can save the intermediate YAML represnetation of the tests
 after processign the source format (e.g. `go test -json` output format), or load
 the YAML representation to generate the formatted output.
@@ -146,6 +146,9 @@ For packages:
 - `skipped`: a boolean indicating wether any of the tests weree skipped while
   running the tests of the package.
 
+When saved from the tool, the YAML file contains accurate overall `passed` /
+`failed` counts and `success` flag. TThese are optional in an input YAML and
+re-calcuated anyway.
 
 
 ## Using Custom Template
