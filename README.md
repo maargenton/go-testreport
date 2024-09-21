@@ -89,6 +89,67 @@ Coverage: 100%
 
 
 
+## Canonical YAML format
+
+The test reporting process goes through an intermediate in-memory representation
+that maps to a canonical YAML format on disk. Independently of the formatted
+output, the command can save the intermediate YAML represnetation of the tests
+after processign the source format (e.g. `go test -json` output format), or can
+load the YAML representation to generate the formatted output.
+
+The minimal YAML structure for loading tests for reporting is:
+
+```yaml
+packages:
+  - package: github.com/maargenton/go-testreport
+  - package: github.com/maargenton/go-testreport/pkg/cmd/report
+    tests:
+      - name: TestCmdArgumentsValidation
+        tests:
+          - name: Given a report command
+            tests:
+              - name: when called with no input
+                tests:
+                  - name: then it returns an error
+              - name: when called with input and output
+                tests:
+                  - name: then it reports test failure
+                    failure: true
+```
+
+The test report considers test results as a list of packages, with a list of
+tests per package and nested tests in tests. It does not differentiate between
+test-suite, test-fixtures, and actual tests; all of them are nested testing
+scopes, with the _leaf tests_ doing the actual testing. If your input format
+reports test-suites and test-fixtures, they should be imported as tests with
+nested tests.
+
+In the YAML representation, a few optional fields are supported for tests,
+packages, and overall report, that can be included in the reports if specified:
+
+For tests:
+- `failure`: should be `true` if a test failed, can be ommitted otherwise.
+- `output` : a list of strings containing the line-by-line output of the tests
+  if the test produced any output.
+
+For packages:
+- `elapsed`: records the time it took to run all the tests in the packages. The
+  valus is expected to be a string following the Go
+  [time.Duration](https://pkg.go.dev/time#ParseDuration) string reprentation,
+  e.g.: `300ms`, `1.5h` or `2h45m`.
+- `coverage`: a value between 0 and 100 representing the percentage of the
+  package code covered by all the tests in the package.
+- `skipped`: a boolean indicating wether any of the tests weree skipped while
+  running the tests of the package.
+
+For the overall report, the following fields are included in the report, but are
+informational only and recalculated when the YAML report is loaded:
+- `passed`: the number of _leaf tests_ that have passed
+- `failed`: the number of _leaf tests_ that have failed
+- `success`: a boolean indicating if all the tests have passed.
+
+
+
 ## Using Custom Template
 
 `go-testreport` can also produce output from a custom template file, based on
@@ -104,8 +165,8 @@ go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
 
 - `{{ .Name }}`: The name of the package
 - `{{ Elapsed }}`: The time taken to run the tests
--	`{{Passed}}`: The number of leaf tests that passed
--	`{{Failed}}`: The number of leaf tests that failed
+-	`{{ Passed }}`: The number of leaf tests that passed
+-	`{{ Failed }}`: The number of leaf tests that failed
 - `{{ Coverage }}`: A percentage value (0..100) of how much of the code is
   exercised by the tests running within the package.
 - `{{ Skipped }}`: A boolean value that is `true` if the tests for that package
