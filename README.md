@@ -165,8 +165,8 @@ go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
 
 - `{{ .Name }}`: The name of the package
 - `{{ Elapsed }}`: The time taken to run the tests
--	`{{Passed}}`: The number of leaf tests that passed
--	`{{Failed}}`: The number of leaf tests that failed
+-	`{{ Passed }}`: The number of leaf tests that passed
+-	`{{ Failed }}`: The number of leaf tests that failed
 - `{{ Coverage }}`: A percentage value (0..100) of how much of the code is
   exercised by the tests running within the package.
 - `{{ Skipped }}`: A boolean value that is `true` if the tests for that package
