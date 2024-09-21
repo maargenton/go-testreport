@@ -94,8 +94,8 @@ Coverage: 100%
 The test reporting process goes through an intermediate in-memory representation
 that maps to a canonical YAML format on disk. Independently of the formatted
 output, the command can save the intermediate YAML represnetation of the tests
-after processign the source format (e.g. `go test -json` output format), or load
-the YAML representation to generate the formatted output.
+after processign the source format (e.g. `go test -json` output format), or can
+load the YAML representation to generate the formatted output.
 
 The minimal YAML structure for loading tests for reporting is:
 
@@ -124,12 +124,8 @@ scopes, with the _leaf tests_ doing the actual testing. If your input format
 reports test-suites and test-fixtures, they should be imported as tests with
 nested tests.
 
-When loading test results from a YAML file, `passed` and `failed` counts and
-overall `success` are updated from counting the _leaf tests_ that are passing /
-failing.
-
-In the YAML representation, a few addition fields are supported for packages and
-tests, that can be included in the reports if specified:
+In the YAML representation, a few additional fields are supported for tests,
+packages, and overall report, that can be included in the reports if specified:
 
 For tests:
 - `failure`: should be `true` if a test failed, can be ommitted otherwise.
@@ -146,9 +142,12 @@ For packages:
 - `skipped`: a boolean indicating wether any of the tests weree skipped while
   running the tests of the package.
 
-When saved from the tool, the YAML file contains accurate overall `passed` /
-`failed` counts and `success` flag. TThese are optional in an input YAML and
-re-calcuated anyway.
+For the overall report, the following fields are included in the report, but are
+informational only and recalculated when the YAML report is loaded:
+- `passed`: the number of _leaf tests_ that have passed
+- `failed`: the number of _leaf tests_ that have failed
+- `success`: a boolean indicating if all the tests have passed.
+
 
 
 ## Using Custom Template
