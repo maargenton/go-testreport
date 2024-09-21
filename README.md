@@ -124,7 +124,7 @@ scopes, with the _leaf tests_ doing the actual testing. If your input format
 reports test-suites and test-fixtures, they should be imported as tests with
 nested tests.
 
-In the YAML representation, a few additional fields are supported for tests,
+In the YAML representation, a few optional fields are supported for tests,
 packages, and overall report, that can be included in the reports if specified:
 
 For tests:
