@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/maargenton/go-errors"
@@ -27,6 +28,13 @@ type Cmd struct {
 	Race        bool   `opts:"--race"                                  desc:"run the tests with race detector on"`
 	ShiftHeader int    `opts:"--md-shift-headers, default:0"           desc:"shift the level of markdown headers"`
 	Title       string `opts:"--md-title,         default:Test report" desc:"shift the level of markdown headers"`
+}
+
+func (cmd *Cmd) Version() string {
+	if buildInfo, ok := debug.ReadBuildInfo(); ok {
+		return buildInfo.Main.Version
+	}
+	return "v0.0.0-unknown"
 }
 
 func (cmd *Cmd) Run() error {
