@@ -17,9 +17,6 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "2.5"
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
