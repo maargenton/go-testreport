@@ -24,10 +24,10 @@ jobs:
         run: rake build
 
       # - name: Archive action artifacts
-      #   if: always() # Always run step even if other steps fail
+      #   if: ${{ !cancelled() }} # Always run step even if other steps fail
       #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: artifacts
+      #     name: ${{ github.event.repository.name }}-artifacts
       #     path: |
       #       build/release_notes.md
       #       build/artifacts/*
