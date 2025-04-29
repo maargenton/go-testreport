@@ -32,6 +32,9 @@ func New(name string, values map[string]interface{}) *Template {
 	}
 	tmpl.Funcs(funcs)
 
+	if _, err := tmpl.Parse(BuiltinTemplates); err != nil {
+		panic(err)
+	}
 	return tmpl
 }
 
