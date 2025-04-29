@@ -41,7 +41,7 @@ jobs:
         if: ${{ !cancelled() }} # Always run step even if other steps fail
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-artifacts
+          name: ${{ github.event.repository.name }}-${{ env.VERSION }}-${{ matrix.os }}
           path: |
             build/release_notes.md
             build/artifacts/*
