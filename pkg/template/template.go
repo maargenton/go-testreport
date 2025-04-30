@@ -30,7 +30,7 @@ func New(name string, values map[string]interface{}) *Template {
 	for k, v := range values {
 		funcs[k] = wrapValue(v)
 	}
-	tmpl.Funcs(mergeFuncMaps(funcs, RegexFuncs))
+	tmpl.Funcs(mergeFuncMaps(funcs, StringFuncs))
 
 	if _, err := tmpl.Parse(BuiltinTemplates); err != nil {
 		panic(err)

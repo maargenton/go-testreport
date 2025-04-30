@@ -3,10 +3,11 @@ package template
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"text/template"
 )
 
-var RegexFuncs = template.FuncMap{
+var StringFuncs = template.FuncMap{
 	"regexMatch":           regexMatch,
 	"regexFind":            regexFind,
 	"regexFindAll":         regexFindAll,
@@ -15,6 +16,7 @@ var RegexFuncs = template.FuncMap{
 	"regexReplaceAll":      regexReplaceAll,
 	"regexSplit":           regexSplit,
 	"regexSplitN":          regexSplitN,
+	"join":                 join,
 }
 
 // regexMatch compiles the given regex and checks if it matches the input. It
@@ -116,4 +118,21 @@ func regexSplitN(regex string, n int, s string) ([]string, error) {
 		return []string{}, err
 	}
 	return r.Split(s, n), nil
+}
+
+func join(sep string, s []string) string {
+	if len(s) == 0 {
+		return ""
+	}
+	if len(s) == 1 {
+		return s[0]
+	}
+
+	var result strings.Builder
+	result.WriteString(s[0])
+	for _, v := range s[1:] {
+		result.WriteString(sep)
+		result.WriteString(v)
+	}
+	return result.String()
 }
