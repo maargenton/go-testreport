@@ -1,3 +1,15 @@
+# v0.2.0
+
+- Cleanup builtin and custom templates handling, with all templates merged
+  together and referenced by name
+- Add explicit command-line option to add custom template definitions
+- Add template functions for string manipulation
+
+## Code changes
+
+- Improve templates management and builtin function ([#12](https://github.com/maargenton/go-testreport/pull/12))
+
+
 # v0.1.6
 
 - Maintenance release, cleanup CI and build reporting
