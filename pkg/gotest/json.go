@@ -104,7 +104,9 @@ func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
 			return nil, fmt.Errorf("parse error on line %v: %w", lineno, err)
 		}
 		pkg := input.Package
-		result[pkg] = append(result[pkg], input)
+		if pkg != "" {
+			result[pkg] = append(result[pkg], input)
+		}
 	}
 	return result, nil
 }

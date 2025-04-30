@@ -11,32 +11,27 @@ require 'fileutils'
 
 task default: [:build]
 
+
 desc 'Display build information'
 task :info do
-    puts "Module:  #{GoBuild.default.gomod}"
-    puts "Version: #{GoBuild.default.version}"
-    puts "Source:  #{File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit[0,10])}"
-    # puts "Image:   #{File.basename(GoBuild.default.gomod)}"
-
     summary = {
         "Module" =>  GoBuild.default.gomod,
         "Version" => GoBuild.default.version,
-        "Source" =>  File.join(BuildInfo.default.remote,'tree',BuildInfo.default.commit[0,10]),
+        "Source" =>  File.join(BuildInfo.default.remote, "tree", BuildInfo.default.commit[0,10]),
     }
 
     if GoBuild.default.targets.count > 0 then
-        puts "Main target: #{File.join('build/bin', GoBuild.default.main_target)}"
-        summary["Main Target"] = GoBuild.default.main_target
+        summary["Main target"] = GoBuild.default.main_target
 
         if GoBuild.default.targets.count > 1 then
             targets = (GoBuild.default.targets.keys - [GoBuild.default.main_target])
-            puts "Additional targels:"
-            puts targets.map { |t| "  - #{File.join('build/bin',t)}" }.join(" \n")
-            summary["Additional Targets"] = targets
+            summary["Additional targets"] = targets
         end
     end
 
-    record_summary("## Build summary\n\n#{format_summary_table(summary)}\n")
+    print_summary(summary)
+    export_summary("## Build summary\n\n#{format_summary_table(summary)}\n")
+    export_env("VERSION=#{GoBuild.default.version}")
 end
 
 
@@ -59,7 +54,7 @@ task :test => [:info] do
     )
 
     puts File.read('build/go-test-summary.md')
-    record_summary(File.read('build/go-test-details.md'))
+    export_summary(File.read('build/go-test-details.md'))
 
     exit(1) if !success
 end
@@ -73,22 +68,6 @@ end
 desc 'Remove build artifacts'
 task :clean do
     FileUtils.rm_rf('./build')
-end
-
-
-def go_test()
-    FileUtils.makedirs( ['./build'] )
-    cmd = "go test -race " +
-        "-coverprofile=build/go-test-coverage.txt -covermode=atomic " +
-        "-json ./... > build/go-test-result.json"
-    system(cmd)
-end
-
-def go_testreport(*args)
-    # cmd = %w{go run github.com/maargenton/go-testreport@v0.1.5}
-    cmd = %w{go run main.go} # use local
-    cmd += args
-    system(*cmd)
 end
 
 def generate_release_notes()
@@ -124,7 +103,9 @@ class BuildInfo
     def dir()       return @dir     ||= _dir()      end
 
     private
-    def _git( cmd ) return `git #{cmd} 2>/dev/null`.strip()     end
+    def _windows?() return RUBY_PLATFORM =~ /win32|mingw|mswin/ end
+    def _dev_null() return _windows? ? "NUL" : "/dev/null"      end
+    def _git( cmd ) return `git #{cmd} 2>#{_dev_null}`.strip()  end
     def _commit()   return _git('rev-parse HEAD')               end
     def _dir()      return _git('rev-parse --show-toplevel')    end
 
@@ -147,7 +128,7 @@ class BuildInfo
         # Note: Due to glob(7) limitations, the following pattern enforces
         # 3-part dot-separated sequences starting with a digit,
         # rather than 3 dot-separated numbers.
-        d = _git("describe --always --tags --long  --match 'v[0-9]*.[0-9]*.[0-9]*'").strip.split('-')
+        d = _git("describe --always --tags --long  --match \"v[0-9]*.[0-9]*.[0-9]*\"").strip.split('-')
         if d.count != 0
             b = _git("rev-parse --abbrev-ref HEAD").strip.gsub(/[^A-Za-z0-9\._-]+/, '-')
             return ['v0.0.0', b, _git("rev-list --count HEAD").strip.to_i, "g#{d[0]}"] if d.count == 1
@@ -274,6 +255,23 @@ private
     end
 end
 
+def go_test()
+    FileUtils.makedirs( ['./build'] )
+    cmd = "go test -race " +
+        "-coverprofile=build/go-test-coverage.txt -covermode=atomic " +
+        "-json ./... > build/go-test-result.json"
+    puts cmd
+    system(cmd)
+end
+
+def go_testreport(*args)
+    # cmd = %w{go run github.com/maargenton/go-testreport@v0.1.6}
+    cmd = %w{go run .}
+    cmd += args
+    puts cmd
+    system(*cmd)
+end
+
 
 
 # ----------------------------------------------------------------------------
@@ -305,15 +303,60 @@ end
 
 
 # ----------------------------------------------------------------------------
-# Build summary generator
+# Github Actions integration
 # ----------------------------------------------------------------------------
 
-def record_summary(content)
+def export_summary(content)
     return if ENV['GITHUB_STEP_SUMMARY'].nil?
     summary_filename = ENV['GITHUB_STEP_SUMMARY']
     open(summary_filename, 'a') do |f|
         f.puts content
     end
+end
+
+def export_env(env)
+    return if ENV['GITHUB_ENV'].nil?
+    env_filename = ENV['GITHUB_ENV']
+    open(env_filename, 'a') do |f|
+        f.puts env
+    end
+end
+
+
+
+# ----------------------------------------------------------------------------
+# Build summary generator
+# ----------------------------------------------------------------------------
+
+# def record_summary(content)
+#     return if ENV['GITHUB_STEP_SUMMARY'].nil?
+#     summary_filename = ENV['GITHUB_STEP_SUMMARY']
+#     open(summary_filename, 'a') do |f|
+#         f.puts content
+#     end
+# end
+
+def print_summary(summary)
+    puts "---"
+    width = summary.select { |k,v| !_single_value(v).nil? }.map { |k,v| k.length }.max
+    summary.each do |k,v|
+        vv = _single_value(v)
+        if vv.nil?
+            puts "#{k}:"
+            puts v.map { |t| "  - #{t}" }.join(" \n")
+        else
+            puts "#{(k+':').ljust(width+1)} #{vv}"
+        end
+    end
+    puts "---"
+end
+
+def _single_value(value)
+    if value.respond_to?(:each) && value.respond_to?(:count)
+        return nil if value.count > 1
+        return value[0]
+    end
+    return value
 end
 
 def format_summary_table(summary)

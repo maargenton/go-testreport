@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/maargenton/go-errors"
@@ -21,12 +22,22 @@ import (
 const ErrTestFailure = errors.Sentinel("ErrTestFailure")
 
 type Cmd struct {
-	Inputs  []string `opts:"args, name:input" desc:"package or packages to run tests from, or filename containing test results"`
-	Outputs []string `opts:"-o, --output"     desc:"one of more output to generate, formatted as <template>=<output-filename>.\ntemplate can be either 'yaml', 'markdown' or a the name of a file containing a custom template"`
+	Inputs    []string `opts:"args, name:input" desc:"package or packages to run tests from, or filename containing test results"`
+	Templates []string `opts:"-t, --template"   desc:"one or more template files to load as part of the available templates"`
+	Outputs   []string `opts:"-o, --output"     desc:"one of more output to generate, formatted as <template>=<output-filename>.\ntemplate can be either 'yaml' or the name of a builtin or custom template"`
 
 	Race        bool   `opts:"--race"                                  desc:"run the tests with race detector on"`
 	ShiftHeader int    `opts:"--md-shift-headers, default:0"           desc:"shift the level of markdown headers"`
 	Title       string `opts:"--md-title,         default:Test report" desc:"shift the level of markdown headers"`
+
+	tmpl *template.Template // Parsed template from builtin and custom template files
+}
+
+func (cmd *Cmd) Version() string {
+	if buildInfo, ok := debug.ReadBuildInfo(); ok {
+		return buildInfo.Main.Version
+	}
+	return "v0.0.0-unknown"
 }
 
 func (cmd *Cmd) Run() error {
@@ -48,10 +59,27 @@ func (cmd *Cmd) Run() error {
 	}
 	results.UpdateCounts()
 
+	if err := cmd.loadTemplates(results); err != nil {
+		return err
+	}
+
 	for _, output := range cmd.Outputs {
-		err := cmd.saveOutput(output, results)
-		if err != nil {
-			return err
+		parts := strings.SplitN(output, "=", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid output specifier: '%v'; expected <type>=<filename>", output)
+		}
+		var format, outputFilename = parts[0], parts[1]
+
+		if format == "yaml" {
+			err := cmd.saveYAMLOutput(outputFilename, results)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := cmd.saveTemplateOutput(outputFilename, format, results)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -81,19 +109,8 @@ func (cmd *Cmd) loadInput(input string) (results *model.Results, err error) {
 	return gotest.Run(input, opts...)
 }
 
-func (cmd *Cmd) saveOutput(output string, results *model.Results) error {
-	parts := strings.SplitN(output, "=", 2)
-	if len(parts) != 2 {
-		return fmt.Errorf("invalid output specifier: '%v'; expected <type>=<filename>", output)
-	}
-	if parts[0] == "yaml" {
-		if parts[1] == "-" {
-			return model.SaveToYAML(os.Stdout, results)
-		}
-		return model.SaveToYAMLFile(parts[1], results)
-	}
+func (cmd *Cmd) loadTemplates(results *model.Results) error {
 
-	var tmpl *template.Template
 	var values = map[string]interface{}{
 		"Title":       cmd.Title,
 		"Results":     results,
@@ -101,26 +118,28 @@ func (cmd *Cmd) saveOutput(output string, results *model.Results) error {
 		"HeaderShift": cmd.ShiftHeader,
 	}
 
-	if srcs, ok := template.Builtin[parts[0]]; ok {
-		tmpl = template.New("report", values)
-		for _, src := range srcs {
-			_, err := tmpl.Parse(src)
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		tmpl = template.New(parts[0], values)
-		_, err := tmpl.ParseFiles(parts[0])
-		if err != nil {
+	cmd.tmpl = template.New("default", values)
+	if len(cmd.Templates) != 0 {
+		if _, err := cmd.tmpl.ParseFiles(cmd.Templates...); err != nil {
 			return err
 		}
 	}
+	return nil
+}
 
-	if parts[1] == "-" {
-		return tmpl.Execute(os.Stdout, results.Packages)
+func (cmd *Cmd) saveYAMLOutput(output string, results *model.Results) error {
+	if output == "-" {
+		return model.SaveToYAML(os.Stdout, results)
 	}
-	return fileutils.WriteFile(parts[1], func(w io.Writer) error {
-		return tmpl.Execute(w, results.Packages)
-	})
+	return model.SaveToYAMLFile(output, results)
+}
+
+func (cmd *Cmd) saveTemplateOutput(output string, format string, results *model.Results) error {
+	if output == "-" {
+		return cmd.tmpl.ExecuteTemplate(os.Stdout, format, results.Packages)
+	} else {
+		return fileutils.WriteFile(output, func(w io.Writer) error {
+			return cmd.tmpl.ExecuteTemplate(w, format, results.Packages)
+		})
+	}
 }

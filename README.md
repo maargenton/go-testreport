@@ -213,6 +213,60 @@ go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
   ```
   {{- render "test" . | indent 2 -}}
   ```
+- `regexMatch`: compiles the given regex and checks if it matches the input. It
+   returns an error if the regex fails to compile.
+   ```
+   {{- if .FullName | regexMatch "\\[[^\\]]+\\]" }}
+   ```
+- `regexFind`: returns the first fragment of the input than matches the regex or
+  an empty string if nothing matches.  It returns an error if the regex fails to
+  compile.
+   ```
+   {{- $ref := .FullName | regexFind "\\[[^\\]]+\\]" }}
+   ```
+- `regexFindAll`: returns a list of all fragments of the input that match the
+  regex or an empty list if nothing matches.  It returns an error if the regex
+  fails to compile.
+   ```
+   {{- $refs := .FullName | regexFindAll "\\[[^\\]]+\\]" }}
+   ```
+- `regexFindSubmatch`: returns the i-th sub-match from the first fragment of the
+  input that matches the regex or an empty string if nothing matches. It returns
+  an error if the regex fails to compile or if the sub-match index is out of
+  bounds.
+  ```
+  {{- $ref := .FullName | regexFindSubmatch "\\[([^\\]]+)\\]" 1 -}}
+  ```
+- `regexFindAllSubmatch`: returns a list of the i-th sub-matches from all the
+  fragments of the input that match the regex or an empty list if nothing
+  matches. It returns an error if the regex fails to compile or if the sub-match
+  index is out of bounds.
+  ```
+  {{- $refs := .FullName | regexFindAllSubmatch "\\[([^\\]]+)\\]" 1 -}}
+  ```
+- `regexReplaceAll`: replaces all matches of the regex in the input with the
+  replacement string which can contain sub-match reference ($1, $2, ...). It
+  returns an error if the regex fails to compile.
+  ```
+  {{- $name | regexReplaceAll "\\s*\\[([^\\]]+)\\]" "" -}}
+  ```
+- `regexSplit`: splits the input into a list of strings using the regex as a
+  delimiter. It returns an error if the regex fails to compile.
+  ```
+  {{- $parts := .FullName | regexSplit "[,:]\s*" -}}
+  ```
+- `regexSplitN`: splits the input into a list of strings using the regex as a
+  delimiter. The n parameter specifies the maximum number of substrings to
+  return, with the last substring containing the remainder unsplit. It returns
+  an error if the regex fails to compile.
+  ```
+  {{- $parts := .FullName | regexSplit "[,:]\s*" 2 -}}
+  ```
+- `join`: joins a list of strings into a single string using the specified
+  separator.
+  ```
+  {{ $refs | join ", " }}
+  ```
 
 ### Sample template
 

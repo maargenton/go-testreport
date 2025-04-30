@@ -20,6 +20,7 @@ packages:
     tests:
     - { name: bar, tests: [ { name: baz } ] }
     - { name: bar2, tests: [ { name: baz } ] }
+    - { name: Bar, tests: [ { name: foobaz } ] }
 `
 	var r = strings.NewReader(yaml)
 	var results, err = model.LoadFromYAML(r)
@@ -34,7 +35,7 @@ func TestPackage(t *testing.T) {
 			tests := pkg.LeafTests()
 
 			t.Then("only tests with no sub-tests are reported", func(t *bdd.T) {
-				verify.That(t, tests).Length().Eq(2)
+				verify.That(t, tests).Length().Eq(3)
 				verify.That(t, tests).All(
 					subexpr.Value().Field("Tests").IsEmpty(),
 				)
@@ -47,6 +48,7 @@ func TestPackage(t *testing.T) {
 				verify.That(t, names).Eq([]string{
 					"foo, bar, baz",
 					"foo, bar2, baz",
+					"foo: Bar, foobaz",
 				})
 			})
 			t.Then("partial names include partial test hierarchy names", func(t *bdd.T) {
@@ -57,6 +59,7 @@ func TestPackage(t *testing.T) {
 				verify.That(t, names).Eq([]string{
 					"bar, baz",
 					"bar2, baz",
+					"Bar, foobaz",
 				})
 			})
 			t.Then("partial names are empty when skipping too much", func(t *bdd.T) {
@@ -64,7 +67,9 @@ func TestPackage(t *testing.T) {
 				for _, t := range tests {
 					names = append(names, t.PartialName(10))
 				}
-				verify.That(t, names).Eq([]string{"", ""})
+				verify.That(t, names).All(
+					subexpr.Value().IsEmpty(),
+				)
 			})
 		})
 	})

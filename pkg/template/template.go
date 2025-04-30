@@ -30,9 +30,22 @@ func New(name string, values map[string]interface{}) *Template {
 	for k, v := range values {
 		funcs[k] = wrapValue(v)
 	}
-	tmpl.Funcs(funcs)
+	tmpl.Funcs(mergeFuncMaps(funcs, StringFuncs))
 
+	if _, err := tmpl.Parse(BuiltinTemplates); err != nil {
+		panic(err)
+	}
 	return tmpl
+}
+
+func mergeFuncMaps(funcs ...template.FuncMap) template.FuncMap {
+	var result = make(template.FuncMap)
+	for _, f := range funcs {
+		for k, v := range f {
+			result[k] = v
+		}
+	}
+	return result
 }
 
 func indent(spaces int, v string) string {
