@@ -66,9 +66,9 @@ func regexFindSubmatch(regex string, i int, s string) (string, error) {
 	return "", nil
 }
 
-// regexFindAllSubmatch returns a list of the requested 1-based sub-matches from
-// all the fragments of the input that match the regex or an empty list if
-// nothing matches. It returns an error if the regex fails to compile or if the
+// regexFindAllSubmatch returns a list of the i-th sub-matches from all the
+// fragments of the input that match the regex or an empty list if nothing
+// matches. It returns an error if the regex fails to compile or if the
 // sub-match index is out of bounds.
 func regexFindAllSubmatch(regex string, i int, s string) ([]string, error) {
 	r, err := regexp.Compile(regex)
