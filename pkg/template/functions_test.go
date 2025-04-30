@@ -18,7 +18,7 @@ func Test_regexMatch(t *testing.T) {
 			})
 		})
 		t.When("calling regexMatch() with a non-matching string", func(t *bdd.T) {
-			t.Then("it returns true", func(t *bdd.T) {
+			t.Then("it returns false", func(t *bdd.T) {
 				var match, err = regexMatch(regex, "ABC")
 				require.That(t, err).IsError(nil)
 				require.That(t, match).IsFalse()
