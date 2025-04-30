@@ -1,8 +1,10 @@
 package model
 
 import (
+	"slices"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // Results collects all the test record from all tested packages
@@ -97,28 +99,43 @@ func (t *Test) LeafTests() (r []*Test) {
 	return
 }
 
-// FullName returns the name of all the tests in a branch, concatenated by a
-// comma.
+// FullName returns the full name of the test as the concatenation of all the
+// name fragments in the test hierarchy, using either comma or colon as separator
+// depending on the capitalisation  of the next name fragment.
 func (t *Test) FullName() string {
-	if t.Parent == nil {
-		return t.Name
-	}
-
-	return t.Parent.FullName() + ", " + t.Name
+	return t.PartialName(0)
 }
 
-// PartialName like FullName returns the name of all the tests in a branch,
-// concatenated by a comma, but skipping the requested upper level tests.
+// PartialName return the full concatenated name of the test just like
+// `FullName()`, but skips the requested number of fragments from the beginning
+// of the test hierarchy.
 func (t *Test) PartialName(skip int) string {
 	var parts []string
 	for tt := t; tt != nil; tt = tt.Parent {
-		parts = append([]string{tt.Name}, parts...)
+		var name = strings.TrimSpace(tt.Name)
+		if len(name) > 0 {
+			parts = append(parts, name)
+		}
 	}
+	slices.Reverse(parts)
 
-	if skip > 0 && skip < len(parts) {
+	if skip >= 0 && skip < len(parts) {
 		parts = parts[skip:]
 	} else {
 		parts = nil
 	}
-	return strings.Join(parts, ", ")
+
+	var result strings.Builder
+	for i, s := range parts {
+		result.WriteString(s)
+		if i < len(parts)-1 {
+			var next = parts[i+1]
+			if len(next) > 0 && unicode.IsUpper(rune(next[0])) {
+				result.WriteString(": ")
+			} else {
+				result.WriteString(", ")
+			}
+		}
+	}
+	return result.String()
 }
