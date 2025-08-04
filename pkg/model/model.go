@@ -34,13 +34,14 @@ func (r *Results) UpdateCounts() {
 
 // Package collects all the test record for one go package within the project
 type Package struct {
-	Name     string        `yaml:"package"`
-	Elapsed  time.Duration `yaml:"elapsed"`
-	Passed   int           `yaml:"passed"`
-	Failed   int           `yaml:"failed"`
-	Coverage float64       `yaml:"coverage"`
-	Skipped  bool          `yaml:"skipped"`
-	Tests    []*Test       `yaml:"tests,omitempty"`
+	Name       string        `yaml:"package"`
+	Elapsed    time.Duration `yaml:"elapsed"`
+	Passed     int           `yaml:"passed"`
+	Failed     int           `yaml:"failed"`
+	Coverage   float64       `yaml:"coverage"`
+	Skipped    bool          `yaml:"skipped"`
+	BuildError string        `yaml:"buildError,omitempty"`
+	Tests      []*Test       `yaml:"tests,omitempty"`
 }
 
 func (p *Package) updateCounts() {
@@ -57,6 +58,12 @@ func (p *Package) updateCounts() {
 			passed++
 		}
 	}
+
+	// If there's a build error, increment failed count by 1
+	if p.BuildError != "" {
+		failed++
+	}
+
 	p.Passed = passed
 	p.Failed = failed
 }

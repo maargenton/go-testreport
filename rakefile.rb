@@ -79,6 +79,14 @@ def generate_release_notes()
 end
 
 
+desc 'Independent task to update sample output'
+task :'update-sample-output' => [] do
+    system("go test -cover -race -json -tags=sample ./pkg/sample... > pkg/gotest/testdata/build-error-output.json")
+    exit(1) if !$?.success?
+end
+
+
+
 
 # ----------------------------------------------------------------------------
 # BuildInfo : Helper to extract version inforrmation for git repo

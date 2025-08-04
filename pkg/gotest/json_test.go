@@ -7,8 +7,11 @@ import (
 
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
 	"github.com/maargenton/go-testpredicate/pkg/require"
+	"github.com/maargenton/go-testpredicate/pkg/subexpr"
+	"github.com/maargenton/go-testpredicate/pkg/verify"
 
 	"github.com/maargenton/go-testreport/pkg/gotest"
+	"github.com/maargenton/go-testreport/pkg/model"
 )
 
 func TestLoad(t *testing.T) {
@@ -75,6 +78,37 @@ func TestLoadError(t *testing.T) {
 				require.That(t, err).IsNotNil()
 				require.That(t, results).IsNil()
 
+			})
+		})
+	})
+}
+
+func TestBuildError(t *testing.T) {
+	bdd.Given(t, "a file containing build failures in json output", func(t *bdd.T) {
+		filename := "./testdata/build-error-output.json"
+
+		t.When("calling ParseFile()", func(t *bdd.T) {
+			results, err := gotest.ParseFile(filename)
+			require.That(t, err).IsError(nil)
+			require.That(t, results).IsNotNil()
+			require.That(t, results.Packages).Length().Eq(3)
+
+			var failedPkg []*model.Package
+			for _, p := range results.Packages {
+				if p.BuildError != "" {
+					failedPkg = append(failedPkg, p)
+				}
+			}
+
+			t.Then("one package has build errors", func(t *bdd.T) {
+				verify.That(t, failedPkg).Length().Eq(1)
+				verify.That(t, failedPkg[0].Name).Eq("github.com/maargenton/go-testreport/pkg/sample/builderror")
+			})
+
+			t.Then("packages with build errors are marked with at least 1 failure", func(t *bdd.T) {
+				verify.That(t, failedPkg).All(
+					subexpr.Value().Field("Failed").Ge(1),
+				)
 			})
 		})
 	})

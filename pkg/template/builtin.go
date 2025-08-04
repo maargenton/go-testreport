@@ -8,7 +8,7 @@ var BuiltinTemplates = `
 {{/* -------------------------------------------------------------------- */}}
 
 {{- define "package-summary" -}}
-{{-   if gt (len .Tests) 0 }}
+{{-   if or (gt .Passed 0) (gt .Failed 0) }}
 | {{ render "package-outcome" . }} {{ .Name }} | {{ .Passed }} | {{ .Failed }} | {{ .Coverage }}% |
 {{-    end -}}
 {{- end -}}
@@ -17,11 +17,31 @@ var BuiltinTemplates = `
 {{-   if gt .Failed 0 -}}❌{{- else -}}✅{{- end -}}
 {{- end -}}
 
+{{- define "package-build-error" }}
+{{   if .BuildError -}}
+❌ Build Errors:
+{{      codeblock }}
+{{      .BuildError }}
+{{      codeblock }}
+{{    end -}}
+{{- end -}}
+
+{{- define "package-coverage" }}
+{{    if gt .Coverage 0.0 -}}
+Coverage: {{ .Coverage }}%
+{{    end -}}
+{{- end -}}
+
 {{/* -------------------------------------------------------------------- */}}
 
 {{- define "package-failures" }}
 {{ header 3 }} {{ .Name }}
-{{    range .Tests -}}
+{{/* ---newline--- */}}
+
+{{- render "package-build-error" . -}}
+{{- render "package-coverage" . -}}
+
+{{-    range .Tests -}}
 {{-     if .Failure -}}
 {{-       render "test-failure" . -}}
 {{-     end -}}
@@ -41,11 +61,14 @@ var BuiltinTemplates = `
 {{/* -------------------------------------------------------------------- */}}
 
 {{- define "package-details" -}}
-{{-   if gt (len .Tests) 0 }}
+{{-   if or (gt .Passed 0) (gt .Failed 0) }}
 {{ header 3 }} {{ .Name }}
+{{/* ---newline--- */}}
 
-Coverage: {{ .Coverage }}%
-{{      range .Tests -}}
+{{- render "package-build-error" . -}}
+{{- render "package-coverage" . -}}
+
+{{     range .Tests -}}
 {{-       render "test-details" . -}}
 {{-     end }}
 {{    end -}}
@@ -83,19 +106,19 @@ Coverage: {{ .Coverage }}%
 {{    header 2 }} Packages
 
 | Package | Passed | Failed | Coverage |
-|-|-|-|-|
+|---------|--------|--------|----------|
 {{-   range . -}}
-{{-     template "package-summary" . -}}
+{{-     render "package-summary" . -}}
 {{-   end}}
 
 {{    header 2 }} Full report
 {{    range . -}}
-{{-     template "package-details" . -}}
+{{-     render "package-details" . -}}
 {{-   end -}}
 {{- end -}}
 
 {{- define "md" }}
-{{-   template "markdown" . -}}
+{{-   render "markdown" . -}}
 {{- end -}}
 
 
@@ -109,9 +132,9 @@ Coverage: {{ .Coverage }}%
 {{    header 2 }} Packages
 
 | Package | Passed | Failed | Coverage |
-|-|-|-|-|
+|---------|--------|--------|----------|
 {{-   range . -}}
-{{-     template "package-summary" . -}}
+{{-     render "package-summary" . -}}
 {{-   end }}
 {{- end -}}
 
@@ -119,7 +142,7 @@ Coverage: {{ .Coverage }}%
 {{/* -------------------------------------------------------------------- */}}
 
 {{- define "mdsf" }}
-{{-   template "mds" . -}}
+{{-   render "mds" . -}}
 
 {{-   $any_failure := false -}}
 {{-   range . -}}
@@ -131,7 +154,7 @@ Coverage: {{ .Coverage }}%
 {{      header 2 }} Failures
 {{      range . -}}
 {{-       if gt .Failed 0 -}}
-{{-         template "package-failures" . -}}
+{{-         render "package-failures" . -}}
 {{-       end -}}
 {{-     end -}}
 {{-   end }}
@@ -141,7 +164,7 @@ Coverage: {{ .Coverage }}%
 {{/* -------------------------------------------------------------------- */}}
 
 {{- define "mdsfd" }}
-{{-   template "mdsf" . -}}
+{{-   render "mdsf" . }}
 
 {{    header 2 }} Full report
 
@@ -149,13 +172,13 @@ Coverage: {{ .Coverage }}%
 <summary>Expand</summary>
 
 {{     range . -}}
-{{-      template "package-details" . -}}
-{{-     end -}}
+{{-      render "package-details" . -}}
+{{-     end }}
 </details>
 {{- end -}}
 
 
 {{- define "markdown-summary" }}
-{{-   template "mdsfd" . -}}
+{{-   render "mdsfd" . -}}
 {{- end -}}
 `

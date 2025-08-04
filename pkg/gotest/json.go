@@ -43,45 +43,64 @@ func load(r io.Reader) (results *model.Results, err error) {
 		return nil, err
 	}
 
-	packageNames := make([]string, 0, len(pkgMap))
+	// Collect build failures by key matching "FailedBuild" field in package records
+	var failedBuildMap = make(map[string]string)
+	for key, lines := range pkgMap {
+		if len(lines) == 0 || lines[0].Package != "" {
+			continue
+		}
+
+		var msgLines []string
+		for _, l := range lines {
+			if l.Action == "build-output" && l.Output != "" && !strings.HasPrefix(l.Output, "# ") {
+				msgLines = append(msgLines, strings.TrimSpace(l.Output))
+			}
+		}
+		failedBuildMap[key] = strings.Join(msgLines, "\n")
+	}
+
+	var packageNames []string
 	for pkg := range pkgMap {
-		packageNames = append(packageNames, pkg)
+		if _, found := failedBuildMap[pkg]; !found {
+			packageNames = append(packageNames, pkg)
+		}
 	}
 	sort.Strings(packageNames)
 
-	var packages = make([]*model.Package, 0, len(pkgMap))
+	var packages = make([]*model.Package, 0, len(packageNames))
 	for _, name := range packageNames {
+
+		var pkg = &model.Package{
+			Name: name,
+		}
+
 		records := rebuildTestHierarchy(pkgMap[name])
-		tests := records.toTests()
+		pkg.Tests = records.toTests()
 
-		var skipped = false
-		var elapsed = 0 * time.Second
-		var coverage = 0.0
-
-		pkgRecords := records.nestedMap[""]
+		var pkgRecords = records.nestedMap[""]
 		if pkgRecords != nil {
 			for _, l := range pkgRecords.details {
 				if l.Action == "skip" {
-					skipped = true
+					pkg.Skipped = true
+				}
+				if l.Action == "fail" && l.FailedBuild != "" {
+					// Look up the build error from our collected failures
+					if failureMsg, exists := failedBuildMap[l.FailedBuild]; exists {
+						pkg.BuildError = failureMsg
+					}
 				}
 				if l.Elapsed != 0 {
-					elapsed = time.Duration(l.Elapsed * float64(time.Second))
+					pkg.Elapsed = time.Duration(l.Elapsed * float64(time.Second))
 				}
 				if l.Action == "output" {
 					if cov, ok := parseCoverageOutput(l.Output); ok {
-						coverage = cov
+						pkg.Coverage = cov
 					}
 				}
 			}
 		}
 
-		packages = append(packages, &model.Package{
-			Name:     name,
-			Tests:    tests,
-			Elapsed:  elapsed,
-			Coverage: coverage,
-			Skipped:  skipped,
-		})
+		packages = append(packages, pkg)
 	}
 
 	results = &model.Results{
@@ -103,9 +122,11 @@ func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parse error on line %v: %w", lineno, err)
 		}
-		pkg := input.Package
-		if pkg != "" {
+
+		if pkg := input.Package; pkg != "" {
 			result[pkg] = append(result[pkg], input)
+		} else if importPath := input.ImportPath; importPath != "" {
+			result[importPath] = append(result[importPath], input)
 		}
 	}
 	return result, nil
@@ -189,6 +210,10 @@ type jsonInputLine struct {
 	Test    string
 	Output  string
 	Elapsed float64
+
+	// Uncommon fields for build failure tracking
+	ImportPath  string
+	FailedBuild string
 }
 
 func isDiscardable(l jsonInputLine) bool {

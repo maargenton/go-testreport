@@ -21,6 +21,19 @@
                 // "-omarkdown=-",
                 "-omarkdown-summary=-",
             ]
+        },
+        {
+            "name": "Launch with JSON input",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "${workspaceFolder}",
+            "program": "main.go",
+            "args": [
+                "pkg/gotest/testdata/build-error-output.json",
+                "-oyaml=pkg/gotest/testdata/build-error-output.yaml",
+                "-omarkdown-summary=pkg/gotest/testdata/build-error-output.md"
+            ]
         }
     ]
 }
