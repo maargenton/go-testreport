@@ -23,9 +23,15 @@ Test report documentation generator for Go.
 ```
 go install github.com/margenton/go-testreport
 
-go-testreport --race ./... -oyaml=test-report.yaml -omarkdown.tmpl=test-report.md
+go-testreport --race ./... -oyaml=test-report.yaml -omdsfd=test-report.md
 
 go run github.com/maargenton/go-testreport@latest --race ./... -omd=test-report.md
+
+go-testreport --race ./... \
+    --template path/to/my-custom-report.tmpl \
+    --output yaml=test-report.yaml \
+    --output mdsfd=path/to/test-report.md \
+    --output my-custom-report.tmpl=path/to/my-custom-report.md
 ```
 
 The input can be:
@@ -128,19 +134,21 @@ In the YAML representation, a few optional fields are supported for tests,
 packages, and overall report, that can be included in the reports if specified:
 
 For tests:
-- `failure`: should be `true` if a test failed, can be ommitted otherwise.
+- `failure`: should be `true` if a test failed, can be omitted otherwise.
 - `output` : a list of strings containing the line-by-line output of the tests
   if the test produced any output.
 
 For packages:
 - `elapsed`: records the time it took to run all the tests in the packages. The
   valus is expected to be a string following the Go
-  [time.Duration](https://pkg.go.dev/time#ParseDuration) string reprentation,
+  [time.Duration](https://pkg.go.dev/time#ParseDuration) string representation,
   e.g.: `300ms`, `1.5h` or `2h45m`.
 - `coverage`: a value between 0 and 100 representing the percentage of the
   package code covered by all the tests in the package.
-- `skipped`: a boolean indicating wether any of the tests weree skipped while
-  running the tests of the package.
+- `skipped`: a boolean that indicates whether any of the tests were skipped
+  while running the tests of the package.
+- `buildError`: a string capturing any build error if the package could not be
+  built.
 
 For the overall report, the following fields are included in the report, but are
 informational only and recalculated when the YAML report is loaded:
@@ -150,16 +158,44 @@ informational only and recalculated when the YAML report is loaded:
 
 
 
-## Using Custom Template
+## Using custom template
 
-`go-testreport` can also produce output from a custom template file, based on
-standard [Go template](https://pkg.go.dev/text/template). The template is
-applied to the list of packages stored in the internal model, generated from
-parsing the test results.
+The built-in markdown outputs are based on a set of templates and template
+fragments that can be reused in custom templates. The builtin templates are
+referenced by name as described in the [usage section](#usage).
+
+Custom template files can be loaded using `-t` or `--template` options,
+specifying the path to the template file. All template files are loaded and
+merged together, starting with the builtin templates; any redefinitions in
+custom templates will override the builtin ones.
+
+With custom templates loaded, custom outputs can be generated using `-o` or
+`--output` with a parameter of the form `<template-name>=<output-file-path>`.
+The template name is either the name of a definition or the filename without
+path of a `--template` argument, in which case the output is rendered from the
+top level fragments of the template file.
 
 ```
-go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
+go-testreport ./... \
+  --template path/to/my-test-report.tmpl \
+  --output my-test-report.tmpl=build/artifacts/my-test-report.md
 ```
+
+### Template fragments
+
+Built-in templates rely on a set of template fragments that can be reused in
+custom templates:
+
+- `package-summary`: Renders a summary of the package test results in tabular
+  format
+- `package-outcome`: Renders an outcome indicator for a package
+- `package-build-error`: Renders the build error output from the package if any
+- `package-coverage`: Renders the package coverage percentage if not zero
+- `package-failures`: Renders only build errors and test failures from a
+  package, skipping any passing tests.
+- `package-details`: Renders all results from a package including build error if
+  any, coverage if not 0, and the full list of both passing and failing tests.
+
 
 ### Package
 
@@ -171,6 +207,8 @@ go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
   exercised by the tests running within the package.
 - `{{ Skipped }}`: A boolean value that is `true` if the tests for that package
   have been skipped; usually when there is no test in the package
+- `{{ BuildError }}`: A string containing the build error if the package could not be
+  built, or an empty string if the package was built successfully.
 - `{{ Tests }}`: A list of `Test` objects containing the top level tests of the
   package. Those tests might include nested tests.
 - `{{ LeafTests }}`: A list of `Test` objects containing all the leaf tests in
@@ -202,7 +240,8 @@ go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
 
 - `render`: is similar to the built-in `template` function that applies a
   partial template to an object. `render` actually renders the template and
-  produces a multi-line string containing the result.
+  produces a multi-line string containing the result, that can be further
+  processed or manipulated.
   ```
   {{- render "test" . -}}
   ```
@@ -267,6 +306,7 @@ go-testreport ./... -otemplate/my_template.tmpl=build/my-build-report.yaml
   ```
   {{ $refs | join ", " }}
   ```
+
 
 ### Sample template
 
