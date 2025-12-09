@@ -1,6 +1,6 @@
 //go:build sample
 
-package testsuccess_test
+package testpanic_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
 	"github.com/maargenton/go-testpredicate/pkg/require"
 
-	sample "github.com/maargenton/go-testreport/pkg/sample/testsuccess"
+	sample "github.com/maargenton/go-testreport/pkg/sample/testpanic"
 )
 
 func TestSuccess(t *testing.T) {
@@ -35,6 +35,11 @@ func TestSuccess(t *testing.T) {
 			name := fmt.Sprintf("GET %v", tc.name)
 			t.Run(name, func(t *bdd.T) {
 				require.That(t, sample.Bar(name)).Eq(name)
+				if name == "GET /api/v1/baz" {
+					go func() {
+						panic("simulated panic")
+					}()
+				}
 			})
 		}
 	})

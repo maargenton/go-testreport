@@ -1,7 +1,6 @@
 //go:build sample
-// +build sample
 
-package testerror
+package testsuccess
 
 func Foo(s string) string {
 	return s

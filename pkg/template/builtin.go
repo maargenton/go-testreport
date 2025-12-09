@@ -17,11 +17,11 @@ var BuiltinTemplates = `
 {{-   if gt .Failed 0 -}}❌{{- else -}}✅{{- end -}}
 {{- end -}}
 
-{{- define "package-build-error" }}
-{{   if .BuildError -}}
-❌ Build Errors:
+{{- define "package-errors" }}
+{{   if .PackageError -}}
+❌ Errors:
 {{      codeblock }}
-{{      .BuildError }}
+{{      .PackageError }}
 {{      codeblock }}
 {{    end -}}
 {{- end -}}
@@ -38,7 +38,7 @@ Coverage: {{ .Coverage }}%
 {{ header 3 }} {{ .Name }}
 {{/* ---newline--- */}}
 
-{{- render "package-build-error" . -}}
+{{- render "package-errors" . -}}
 {{- render "package-coverage" . -}}
 
 {{-    range .Tests -}}
@@ -65,7 +65,7 @@ Coverage: {{ .Coverage }}%
 {{ header 3 }} {{ .Name }}
 {{/* ---newline--- */}}
 
-{{- render "package-build-error" . -}}
+{{- render "package-errors" . -}}
 {{- render "package-coverage" . -}}
 
 {{     range .Tests -}}

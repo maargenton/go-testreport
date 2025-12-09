@@ -189,7 +189,9 @@ custom templates:
 - `package-summary`: Renders a summary of the package test results in tabular
   format
 - `package-outcome`: Renders an outcome indicator for a package
-- `package-build-error`: Renders the build error output from the package if any
+- `package-errors`: Renders package-level errors, including build errors that
+  prevent tests from running, and other errors that result in a failure at the
+  package level even if all the tests are marked as passing.
 - `package-coverage`: Renders the package coverage percentage if not zero
 - `package-failures`: Renders only build errors and test failures from a
   package, skipping any passing tests.
@@ -207,8 +209,9 @@ custom templates:
   exercised by the tests running within the package.
 - `{{ Skipped }}`: A boolean value that is `true` if the tests for that package
   have been skipped; usually when there is no test in the package
-- `{{ BuildError }}`: A string containing the build error if the package could not be
-  built, or an empty string if the package was built successfully.
+- `{{ PackageError }}`: A string containing a package-level error if the package
+  could not be built, if some other error is detected outside of a specific
+  test, empty otherwise.
 - `{{ Tests }}`: A list of `Test` objects containing the top level tests of the
   package. Those tests might include nested tests.
 - `{{ LeafTests }}`: A list of `Test` objects containing all the leaf tests in

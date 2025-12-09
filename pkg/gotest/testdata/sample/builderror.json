@@ -1,0 +1,6 @@
+{"ImportPath":"github.com/maargenton/go-testreport/pkg/sample/builderror_test [github.com/maargenton/go-testreport/pkg/sample/builderror.test]","Action":"build-output","Output":"# github.com/maargenton/go-testreport/pkg/sample/builderror_test [github.com/maargenton/go-testreport/pkg/sample/builderror.test]\n"}
+{"ImportPath":"github.com/maargenton/go-testreport/pkg/sample/builderror_test [github.com/maargenton/go-testreport/pkg/sample/builderror.test]","Action":"build-output","Output":"pkg/sample/builderror/builderror_test.go:36:7: declared and not used: v\n"}
+{"ImportPath":"github.com/maargenton/go-testreport/pkg/sample/builderror_test [github.com/maargenton/go-testreport/pkg/sample/builderror.test]","Action":"build-fail"}
+{"Time":"2025-12-08T23:46:24.355695-08:00","Action":"start","Package":"github.com/maargenton/go-testreport/pkg/sample/builderror"}
+{"Time":"2025-12-08T23:46:24.355778-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/builderror","Output":"FAIL\tgithub.com/maargenton/go-testreport/pkg/sample/builderror [build failed]\n"}
+{"Time":"2025-12-08T23:46:24.355798-08:00","Action":"fail","Package":"github.com/maargenton/go-testreport/pkg/sample/builderror","Elapsed":0,"FailedBuild":"github.com/maargenton/go-testreport/pkg/sample/builderror_test [github.com/maargenton/go-testreport/pkg/sample/builderror.test]"}

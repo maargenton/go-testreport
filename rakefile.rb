@@ -81,10 +81,24 @@ end
 
 desc 'Independent task to update sample output'
 task :'update-sample-output' => [] do
-    system("go test -cover -race -json -tags=sample ./pkg/sample... > pkg/gotest/testdata/build-error-output.json")
-    exit(1) if !$?.success?
+    FileUtils.makedirs( ['pkg/gotest/testdata/sample'] )
+    Dir.glob('pkg/sample/*').each do |f|
+        next if !File.directory?(f)
+        name = File.basename(f)
+        puts "Updating sample output from #{f} ..."
+        system("go test -cover -race -json -tags=sample ./#{f}/... > pkg/gotest/testdata/sample/#{name}.json")
+    end
 end
 
+desc 'Independent task to run go-testreport on sample output'
+task :'format-sample-output' => [] do
+    FileUtils.makedirs( ['pkg/gotest/testdata/sample'] )
+    Dir.glob('pkg/gotest/testdata/sample/*.json').each do |f|
+        basename = f[0..-6]
+        puts "Formatting output from #{f} ..."
+        system("go run . #{f} -oyaml=#{basename}.yaml -omarkdown-summary=#{basename}.md")
+    end
+end
 
 
 

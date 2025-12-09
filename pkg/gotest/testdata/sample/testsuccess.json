@@ -1,0 +1,57 @@
+{"Time":"2025-12-08T23:46:24.129754-08:00","Action":"start","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess"}
+{"Time":"2025-12-08T23:46:24.129897-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess"}
+{"Time":"2025-12-08T23:46:24.129913-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess","Output":"=== RUN   TestSuccess\n"}
+{"Time":"2025-12-08T23:46:24.129935-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo"}
+{"Time":"2025-12-08T23:46:24.129943-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo","Output":"=== RUN   TestSuccess/TestFoo\n"}
+{"Time":"2025-12-08T23:46:24.129956-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo/GET_/api/v1/foo"}
+{"Time":"2025-12-08T23:46:24.129964-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo/GET_/api/v1/foo","Output":"=== RUN   TestSuccess/TestFoo/GET_/api/v1/foo\n"}
+{"Time":"2025-12-08T23:46:24.129981-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo/GET_/api/v1/foo","Output":"--- PASS: TestSuccess/TestFoo/GET_/api/v1/foo (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.129992-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo/GET_/api/v1/foo","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130009-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo","Output":"--- PASS: TestSuccess/TestFoo (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.13002-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130029-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01"}
+{"Time":"2025-12-08T23:46:24.130037-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01","Output":"=== RUN   TestSuccess/TestFoo#01\n"}
+{"Time":"2025-12-08T23:46:24.130045-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01/GET_/api/v1/baz"}
+{"Time":"2025-12-08T23:46:24.130053-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01/GET_/api/v1/baz","Output":"=== RUN   TestSuccess/TestFoo#01/GET_/api/v1/baz\n"}
+{"Time":"2025-12-08T23:46:24.130061-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01/GET_/api/v1/baz","Output":"--- PASS: TestSuccess/TestFoo#01/GET_/api/v1/baz (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.13007-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01/GET_/api/v1/baz","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130079-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01","Output":"--- PASS: TestSuccess/TestFoo#01 (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130088-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#01","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130096-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02"}
+{"Time":"2025-12-08T23:46:24.130103-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02","Output":"=== RUN   TestSuccess/TestFoo#02\n"}
+{"Time":"2025-12-08T23:46:24.130111-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02/GET_/api/v1/bar"}
+{"Time":"2025-12-08T23:46:24.130137-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02/GET_/api/v1/bar","Output":"=== RUN   TestSuccess/TestFoo#02/GET_/api/v1/bar\n"}
+{"Time":"2025-12-08T23:46:24.130145-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02/GET_/api/v1/bar","Output":"--- PASS: TestSuccess/TestFoo#02/GET_/api/v1/bar (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130152-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02/GET_/api/v1/bar","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130158-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02","Output":"--- PASS: TestSuccess/TestFoo#02 (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130165-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestFoo#02","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130171-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar"}
+{"Time":"2025-12-08T23:46:24.130176-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar","Output":"=== RUN   TestSuccess/TestBar\n"}
+{"Time":"2025-12-08T23:46:24.130182-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar/GET_/api/v1/foo"}
+{"Time":"2025-12-08T23:46:24.130188-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar/GET_/api/v1/foo","Output":"=== RUN   TestSuccess/TestBar/GET_/api/v1/foo\n"}
+{"Time":"2025-12-08T23:46:24.130194-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar/GET_/api/v1/foo","Output":"--- PASS: TestSuccess/TestBar/GET_/api/v1/foo (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130201-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar/GET_/api/v1/foo","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130209-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar","Output":"--- PASS: TestSuccess/TestBar (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130215-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130221-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01"}
+{"Time":"2025-12-08T23:46:24.130227-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01","Output":"=== RUN   TestSuccess/TestBar#01\n"}
+{"Time":"2025-12-08T23:46:24.130233-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01/GET_/api/v1/baz"}
+{"Time":"2025-12-08T23:46:24.130238-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01/GET_/api/v1/baz","Output":"=== RUN   TestSuccess/TestBar#01/GET_/api/v1/baz\n"}
+{"Time":"2025-12-08T23:46:24.130245-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01/GET_/api/v1/baz","Output":"--- PASS: TestSuccess/TestBar#01/GET_/api/v1/baz (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130251-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01/GET_/api/v1/baz","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130257-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01","Output":"--- PASS: TestSuccess/TestBar#01 (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130273-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#01","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130279-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02"}
+{"Time":"2025-12-08T23:46:24.130285-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02","Output":"=== RUN   TestSuccess/TestBar#02\n"}
+{"Time":"2025-12-08T23:46:24.130291-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02/GET_/api/v1/bar"}
+{"Time":"2025-12-08T23:46:24.130296-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02/GET_/api/v1/bar","Output":"=== RUN   TestSuccess/TestBar#02/GET_/api/v1/bar\n"}
+{"Time":"2025-12-08T23:46:24.130303-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02/GET_/api/v1/bar","Output":"--- PASS: TestSuccess/TestBar#02/GET_/api/v1/bar (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130309-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02/GET_/api/v1/bar","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130323-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02","Output":"--- PASS: TestSuccess/TestBar#02 (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.13033-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess/TestBar#02","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130336-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess","Output":"--- PASS: TestSuccess (0.00s)\n"}
+{"Time":"2025-12-08T23:46:24.130343-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Test":"TestSuccess","Elapsed":0}
+{"Time":"2025-12-08T23:46:24.130348-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Output":"PASS\n"}
+{"Time":"2025-12-08T23:46:24.130354-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Output":"coverage: 100.0% of statements\n"}
+{"Time":"2025-12-08T23:46:24.130362-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Output":"ok  \tgithub.com/maargenton/go-testreport/pkg/sample/testsuccess\t(cached)\tcoverage: 100.0% of statements\n"}
+{"Time":"2025-12-08T23:46:24.130375-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testsuccess","Elapsed":0.001}

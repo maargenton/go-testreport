@@ -16,7 +16,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	bdd.Given(t, "a file containing json formatted test output", func(t *bdd.T) {
-		filename := "./testdata/sample-output.json"
+		var filename = "./testdata/sample/testfailure.json"
 
 		t.When("calling ParseFile()", func(t *bdd.T) {
 			results, err := gotest.ParseFile(filename)
@@ -42,16 +42,16 @@ func TestLoad(t *testing.T) {
 			})
 
 			t.Then("coverage is extracted", func(t *bdd.T) {
-				require.That(t, pkg.Coverage).Eq(50.0)
+				require.That(t, pkg.Coverage).Eq(100.0)
 			})
 			t.Then("elapsed time is extracted", func(t *bdd.T) {
-				require.That(t, pkg.Elapsed).Eq(131 * time.Millisecond)
+				require.That(t, pkg.Elapsed).Eq(323 * time.Millisecond)
 			})
 		})
 	})
 
 	bdd.Given(t, "a file with skipped package", func(t *bdd.T) {
-		filename := "./testdata/sample-output-skipped.json"
+		var filename = "./testdata/sample/testsuccess.json"
 
 		t.When("calling ParseFile()", func(t *bdd.T) {
 			results, err := gotest.ParseFile(filename)
@@ -85,17 +85,17 @@ func TestLoadError(t *testing.T) {
 
 func TestBuildError(t *testing.T) {
 	bdd.Given(t, "a file containing build failures in json output", func(t *bdd.T) {
-		filename := "./testdata/build-error-output.json"
+		var filename = "./testdata/sample/builderror.json"
 
 		t.When("calling ParseFile()", func(t *bdd.T) {
 			results, err := gotest.ParseFile(filename)
 			require.That(t, err).IsError(nil)
 			require.That(t, results).IsNotNil()
-			require.That(t, results.Packages).Length().Eq(3)
+			require.That(t, results.Packages).Length().Eq(1)
 
 			var failedPkg []*model.Package
 			for _, p := range results.Packages {
-				if p.BuildError != "" {
+				if p.PackageError != "" {
 					failedPkg = append(failedPkg, p)
 				}
 			}

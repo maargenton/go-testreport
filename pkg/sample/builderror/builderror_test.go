@@ -1,5 +1,4 @@
 //go:build sample
-// +build sample
 
 package builderror_test
 

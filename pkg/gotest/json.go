@@ -78,15 +78,55 @@ func load(r io.Reader) (results *model.Results, err error) {
 		pkg.Tests = records.toTests()
 
 		var pkgRecords = records.nestedMap[""]
+		var packageFailed = false
+		var packageFailedTests = 0
+
+		if pkgRecords != nil {
+			for _, l := range pkgRecords.details {
+				if l.Action == "fail" {
+					packageFailed = true
+				}
+			}
+		}
+
+		for _, t := range pkg.LeafTests() {
+			if t.Failure {
+				packageFailedTests++
+			}
+		}
+
+		if packageFailed && packageFailedTests == 0 {
+			// Package failure without failed tests: look for panic in outputs
+			// and mark corresponding tests as failed
+			var panicFound = false
+			for _, t := range pkg.LeafTests() {
+				for _, o := range t.Output {
+					if strings.HasPrefix(o, "panic:") {
+						recordDetectedTestFailure(t)
+						panicFound = true
+						break
+					}
+				}
+			}
+
+			if !panicFound {
+				// If no specific test failure has been detected from raw
+				// output, record package failure as a generic test error
+				pkg.PackageError = "unknown error while building / testing package"
+			}
+		}
+
 		if pkgRecords != nil {
 			for _, l := range pkgRecords.details {
 				if l.Action == "skip" {
 					pkg.Skipped = true
 				}
-				if l.Action == "fail" && l.FailedBuild != "" {
-					// Look up the build error from our collected failures
-					if failureMsg, exists := failedBuildMap[l.FailedBuild]; exists {
-						pkg.BuildError = failureMsg
+				if l.Action == "fail" {
+					if l.FailedBuild != "" {
+						// Look up the build error from our collected failures
+						if failureMsg, exists := failedBuildMap[l.FailedBuild]; exists {
+							pkg.PackageError = failureMsg
+						}
 					}
 				}
 				if l.Elapsed != 0 {
@@ -110,6 +150,8 @@ func load(r io.Reader) (results *model.Results, err error) {
 	return results, nil
 }
 
+// parseTestOutput reads the JSON test output from the provided reader and
+// returns a map of packages containing a flat list of parsed JSON lines.
 func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
 	var result = make(map[string][]jsonInputLine)
 	scanner := bufio.NewScanner(r)
@@ -132,6 +174,8 @@ func parseTestOutput(r io.Reader) (map[string][]jsonInputLine, error) {
 	return result, nil
 }
 
+// rebuildTestHierarchy takes a flat list of JSON input lines for a package
+// and reconstructs the test hierarchy based on test names and their nesting.
 func rebuildTestHierarchy(lines []jsonInputLine) *testRecord {
 	var nameSet = make(map[string]struct{})
 	for _, l := range lines {
@@ -158,6 +202,17 @@ func rebuildTestHierarchy(lines []jsonInputLine) *testRecord {
 		records.recordTest(nameParts, l)
 	}
 	return records
+}
+
+// For unrecorded failures that are detected from the output (e.g. panics), mark
+// the test as failed and propagate the failure status to all parent tests.
+func recordDetectedTestFailure(t *model.Test) {
+	t.Failure = true
+	p := t.Parent
+	for p != nil {
+		p.Failure = true
+		p = p.Parent
+	}
 }
 
 // generateTestNameSplits takes a complete sorted list of test and sub-test
@@ -281,12 +336,16 @@ func (r *testRecord) toTests() (tests []*model.Test) {
 			}
 		}
 
-		tests = append(tests, &model.Test{
+		var tt = &model.Test{
 			Name:    cleanupTestName(t.name),
 			Tests:   t.toTests(),
 			Failure: !success,
 			Output:  cleanupOutputs(output),
-		})
+		}
+		for _, st := range tt.Tests {
+			st.Parent = tt
+		}
+		tests = append(tests, tt)
 	}
 	return
 }

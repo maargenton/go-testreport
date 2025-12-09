@@ -1,7 +1,6 @@
 //go:build sample
-// +build sample
 
-package testerror_test
+package testfailure_test
 
 import (
 	"fmt"
@@ -10,7 +9,7 @@ import (
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
 	"github.com/maargenton/go-testpredicate/pkg/require"
 
-	sample "github.com/maargenton/go-testreport/pkg/sample/testerror"
+	sample "github.com/maargenton/go-testreport/pkg/sample/testfailure"
 )
 
 func TestError(t *testing.T) {

@@ -1,0 +1,10 @@
+{"Time":"2025-12-08T23:46:23.896782-08:00","Action":"start","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip"}
+{"Time":"2025-12-08T23:46:23.896907-08:00","Action":"run","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Test":"TestError"}
+{"Time":"2025-12-08T23:46:23.896923-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Test":"TestError","Output":"=== RUN   TestError\n"}
+{"Time":"2025-12-08T23:46:23.896945-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Test":"TestError","Output":"    testskip_test.go:16: Skipping TestBar due to known issue\n"}
+{"Time":"2025-12-08T23:46:23.89696-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Test":"TestError","Output":"--- SKIP: TestError (0.00s)\n"}
+{"Time":"2025-12-08T23:46:23.89697-08:00","Action":"skip","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Test":"TestError","Elapsed":0}
+{"Time":"2025-12-08T23:46:23.896986-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Output":"PASS\n"}
+{"Time":"2025-12-08T23:46:23.896994-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Output":"coverage: 0.0% of statements\n"}
+{"Time":"2025-12-08T23:46:23.897002-08:00","Action":"output","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Output":"ok  \tgithub.com/maargenton/go-testreport/pkg/sample/testskip\t(cached)\tcoverage: 0.0% of statements\n"}
+{"Time":"2025-12-08T23:46:23.897015-08:00","Action":"pass","Package":"github.com/maargenton/go-testreport/pkg/sample/testskip","Elapsed":0}

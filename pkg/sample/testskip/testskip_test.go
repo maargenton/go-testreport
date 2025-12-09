@@ -1,6 +1,6 @@
 //go:build sample
 
-package testsuccess_test
+package testskip_test
 
 import (
 	"fmt"
@@ -9,10 +9,11 @@ import (
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
 	"github.com/maargenton/go-testpredicate/pkg/require"
 
-	sample "github.com/maargenton/go-testreport/pkg/sample/testsuccess"
+	sample "github.com/maargenton/go-testreport/pkg/sample/testskip"
 )
 
-func TestSuccess(t *testing.T) {
+func TestError(t *testing.T) {
+	t.Skip("Skipping TestBar due to known issue")
 
 	var tcs = []struct {
 		name string
@@ -34,7 +35,7 @@ func TestSuccess(t *testing.T) {
 		for _, tc := range tcs {
 			name := fmt.Sprintf("GET %v", tc.name)
 			t.Run(name, func(t *bdd.T) {
-				require.That(t, sample.Bar(name)).Eq(name)
+				require.That(t, sample.Bar(name)).Ne(name)
 			})
 		}
 	})

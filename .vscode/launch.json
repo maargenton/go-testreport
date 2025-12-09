@@ -30,9 +30,9 @@
             "cwd": "${workspaceFolder}",
             "program": "main.go",
             "args": [
-                "pkg/gotest/testdata/build-error-output.json",
-                "-oyaml=pkg/gotest/testdata/build-error-output.yaml",
-                "-omarkdown-summary=pkg/gotest/testdata/build-error-output.md"
+                "pkg/gotest/testdata/sample/testpanic.json",
+                "-oyaml=pkg/gotest/testdata/sample/testpanic.yaml",
+                "-omarkdown-summary=pkg/gotest/testdata/sample/testpanic.md"
             ]
         }
     ]
