@@ -11,9 +11,6 @@ Test report documentation generator for Go.
 [![Codecov](
   https://img.shields.io/codecov/c/github/maargenton/go-testreport?label=codecov&logo=codecov&logoColor=aaaaaa&token=fVZ3ZMAgfo)](
   https://codecov.io/gh/maargenton/go-testreport)
-[![Go Report Card](
-  https://goreportcard.com/badge/github.com/maargenton/go-testreport)](
-  https://goreportcard.com/report/github.com/maargenton/go-testreport)
 
 
 ---------------------------
