@@ -21,6 +21,19 @@
                 // "-omarkdown=-",
                 "-omarkdown-summary=-",
             ]
+        },
+        {
+            "name": "Launch with JSON input",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "${workspaceFolder}",
+            "program": "main.go",
+            "args": [
+                "pkg/gotest/testdata/sample/testpanic.json",
+                "-oyaml=pkg/gotest/testdata/sample/testpanic.yaml",
+                "-omarkdown-summary=pkg/gotest/testdata/sample/testpanic.md"
+            ]
         }
     ]
 }

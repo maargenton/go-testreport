@@ -79,6 +79,28 @@ def generate_release_notes()
 end
 
 
+desc 'Independent task to update sample output'
+task :'update-sample-output' => [] do
+    FileUtils.makedirs( ['pkg/gotest/testdata/sample'] )
+    Dir.glob('pkg/sample/*').each do |f|
+        next if !File.directory?(f)
+        name = File.basename(f)
+        puts "Updating sample output from #{f} ..."
+        system("go test -cover -race -json -tags=sample ./#{f}/... > pkg/gotest/testdata/sample/#{name}.json")
+    end
+end
+
+desc 'Independent task to run go-testreport on sample output'
+task :'format-sample-output' => [] do
+    FileUtils.makedirs( ['pkg/gotest/testdata/sample'] )
+    Dir.glob('pkg/gotest/testdata/sample/*.json').each do |f|
+        basename = f[0..-6]
+        puts "Formatting output from #{f} ..."
+        system("go run . #{f} -oyaml=#{basename}.yaml -omarkdown-summary=#{basename}.md")
+    end
+end
+
+
 
 # ----------------------------------------------------------------------------
 # BuildInfo : Helper to extract version inforrmation for git repo

@@ -16,30 +16,33 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install Go
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
-      - run: go version
-      # - run: rake info
-      # - run: git status
+
+      - name: Go Version
+        run: go version
 
       - name: Test and build package
         run: rake build
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7
         with:
           # token: ${{ secrets.CODECOV_TOKEN }}
           # fail_ci_if_error: true
           verbose: true
           flags: unittests
-          file: coverage.txt
+          files: coverage.txt
 
       - name: Archive action artifacts
         if: ${{ !cancelled() }} # Always run step even if other steps fail
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ github.event.repository.name }}-${{ env.VERSION }}-${{ matrix.os }}
           path: |
