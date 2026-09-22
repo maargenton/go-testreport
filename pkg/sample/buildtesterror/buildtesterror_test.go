@@ -1,6 +1,6 @@
 //go:build sample
 
-package builderror_test
+package buildtesterror_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/maargenton/go-testpredicate/pkg/bdd"
 	"github.com/maargenton/go-testpredicate/pkg/require"
 
-	sample "github.com/maargenton/go-testreport/pkg/sample/builderror"
+	sample "github.com/maargenton/go-testreport/pkg/sample/buildtesterror"
 )
 
 func TestBuildError(t *testing.T) {
@@ -32,6 +32,9 @@ func TestBuildError(t *testing.T) {
 	})
 
 	bdd.Wrap(t, "TestBar", func(t *bdd.T) {
+
+		var v = 123
+
 		for _, tc := range tcs {
 			name := fmt.Sprintf("GET %v", tc.name)
 			t.Run(name, func(t *bdd.T) {
