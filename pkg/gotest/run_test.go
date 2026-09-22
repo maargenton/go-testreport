@@ -12,7 +12,7 @@ import (
 func TestRun(t *testing.T) {
 
 	bdd.Given(t, "a package reference", func(t *bdd.T) {
-		var pkgName = "../sample"
+		var pkgName = "../model"
 
 		t.When("calling Run()", func(t *bdd.T) {
 			results, err := gotest.Run(pkgName, gotest.Race())
@@ -20,13 +20,13 @@ func TestRun(t *testing.T) {
 			t.Then("it runs go test and captures the results", func(t *bdd.T) {
 				require.That(t, err).IsError(nil)
 				require.That(t, results).IsNotNil()
-				verify.That(t, results.Passed).Eq(4)
+				verify.That(t, results.Passed).Eq(8)
 				verify.That(t, results.Failed).Eq(0)
 				verify.That(t, results.Success).IsTrue()
 
 				require.That(t, results.Packages).Length().Eq(1)
 				var pkg = results.Packages[0]
-				verify.That(t, pkg.LeafTests()).Length().Eq(4)
+				verify.That(t, pkg.LeafTests()).Length().Eq(8)
 			})
 		})
 	})

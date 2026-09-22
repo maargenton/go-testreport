@@ -1,4 +1,6 @@
-package sample
+//go:build sample
+
+package testskip
 
 func Foo(s string) string {
 	return s

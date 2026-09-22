@@ -80,7 +80,7 @@ func TestCmdInputType(t *testing.T) {
 		})
 
 		t.When("called with package name", func(t *bdd.T) {
-			cmd.Inputs = []string{"../../sample"}
+			cmd.Inputs = []string{"../../model"}
 			cmd.Race = true
 			var err = cmd.Run()
 
