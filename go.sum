@@ -8,8 +8,8 @@ github.com/maargenton/go-fileutils v0.6.4 h1:4rtH1Bwcv3C+ps72kjlAAQeJ36fYg8WSHPC
 github.com/maargenton/go-fileutils v0.6.4/go.mod h1:9gClkdrb1nDcnC2w1vCvClhJESGjK9wQJ2RusLAxOSk=
 github.com/maargenton/go-testpredicate v0.4.4/go.mod h1:sn267JpJ65uvLQ7VtYzPLvXQiw0tHHw+KbCFzxRPOww=
 github.com/maargenton/go-testpredicate v0.6.4/go.mod h1:lUPR99Ipl1o49oRb5wEUwb/7KXrwc1FAVR6aZmCmoS8=
-github.com/maargenton/go-testpredicate v1.5.0 h1:nIePuB9GvpNrxy6M8xwjEPoefxyCdAALwl83T2NyeNk=
-github.com/maargenton/go-testpredicate v1.5.0/go.mod h1:nLFn4miIOA6Q2pvSki7QS+/JnE86Yk7uxTi8jaARNw4=
+github.com/maargenton/go-testpredicate v1.7.0 h1:DVaLtygLAQhIpe5N05VNurH3MwCP73KSuwooi6D9hQA=
+github.com/maargenton/go-testpredicate v1.7.0/go.mod h1:CBauyFIE1xat6UJbo3iPmIWqaNLNU7GHeGUthOyS1aE=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
